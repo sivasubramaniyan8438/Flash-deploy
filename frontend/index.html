@@ -6,92 +6,184 @@
 <title>FlashDeploy Console</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;background:#0f1b2d;color:#d1dce8;}
-.top{background:#0f1b2d;display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:40px;border-bottom:1px solid #1a2d45;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;}
+.dark{background:#0f1b2d;color:#d1dce8;}
+.light{background:#f2f3f3;color:#16191f;}
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:40px;}
+.dark .top{background:#0f1b2d;border-bottom:1px solid #1a2d45;}
+.light .top{background:#232f3e;border-bottom:1px solid #1a2d45;}
 .logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:600;}
 .logo-sq{width:24px;height:24px;background:#ec7211;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;}
-.subnav{background:#161e2d;border-bottom:1px solid #2d4a6a;display:flex;padding:0 14px;}
-.sni{padding:8px 12px;font-size:12px;cursor:pointer;color:#8aa8c4;border-bottom:2px solid transparent;}
-.sni.on{color:#5b9bd5;border-bottom-color:#5b9bd5;font-weight:600;}
-.layout{display:flex;min-height:calc(100vh - 80px);}
-.sb{width:180px;background:#161e2d;border-right:1px solid #2d4a6a;padding:8px 0;flex-shrink:0;}
-.ss{font-size:10px;font-weight:600;color:#4a6a88;padding:8px 12px 3px;text-transform:uppercase;letter-spacing:.05em;}
-.si{padding:5px 12px 5px 20px;font-size:12px;color:#8aa8c4;cursor:pointer;border-left:2px solid transparent;}
-.si.on{color:#5b9bd5;background:#1a2d42;border-left-color:#5b9bd5;font-weight:500;}
-.si:hover:not(.on){background:#1a2535;color:#d1dce8;}
+.top-right{display:flex;align-items:center;gap:10px;}
+.theme-sw{display:flex;background:#1a2433;border:1px solid #2d4060;border-radius:3px;overflow:hidden;}
+.tsw{padding:3px 10px;font-size:11px;cursor:pointer;border:none;background:transparent;color:#8aa8c4;}
+.tsw.on{background:#ec7211;color:#fff;}
+.layout{display:flex;min-height:calc(100vh - 40px);}
+.sb{width:180px;padding:8px 0;flex-shrink:0;}
+.dark .sb{background:#161e2d;border-right:1px solid #2d4a6a;}
+.light .sb{background:#fff;border-right:1px solid #d5dbdb;}
+.ss{font-size:10px;font-weight:600;padding:8px 12px 3px;text-transform:uppercase;letter-spacing:.05em;}
+.dark .ss{color:#4a6a88;}
+.light .ss{color:#879596;}
+.si{padding:5px 12px 5px 20px;font-size:12px;cursor:pointer;border-left:2px solid transparent;}
+.dark .si{color:#8aa8c4;}
+.light .si{color:#545b64;}
+.dark .si.on{color:#5b9bd5;background:#1a2d42;border-left-color:#5b9bd5;}
+.light .si.on{color:#0073bb;background:#e8f4ff;border-left-color:#0073bb;}
+.dark .si:hover:not(.on){background:#1a2535;color:#d1dce8;}
+.light .si:hover:not(.on){background:#f5f5f5;color:#16191f;}
 .main{flex:1;padding:16px;overflow-y:auto;}
 .page{display:none;}
 .page.on{display:block;}
-.bc{font-size:11px;color:#8aa8c4;margin-bottom:10px;}
-.bc a{color:#5b9bd5;cursor:pointer;}
+.bc{font-size:11px;margin-bottom:10px;}
+.dark .bc{color:#8aa8c4;}
+.light .bc{color:#545b64;}
+.bc a{cursor:pointer;}
+.dark .bc a{color:#5b9bd5;}
+.light .bc a{color:#0073bb;}
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.pt{font-size:15px;font-weight:600;color:#d1dce8;}
+.pt{font-size:15px;font-weight:600;}
+.dark .pt{color:#d1dce8;}
+.light .pt{color:#16191f;}
 .br{display:flex;gap:6px;}
 .bp{background:#ec7211;color:#fff;border:none;border-radius:3px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;}
-.bp:hover{background:#cc6208;}
-.bp:disabled{background:#7a5030;cursor:not-allowed;}
-.bs{background:#1b2b3f;color:#d1dce8;border:1px solid #2d4a6a;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;}
-.bs:hover{background:#243447;}
+.bp:hover{background:#d4853a;}
+.bp:disabled{opacity:.6;cursor:not-allowed;}
+.bs{border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;}
+.dark .bs{background:#1b2b3f;color:#d1dce8;border:1px solid #2d4a6a;}
+.dark .bs:hover{background:#243447;}
+.light .bs{background:#fff;color:#16191f;border:1px solid #aab7b8;}
+.light .bs:hover{background:#f5f5f5;}
 .bdanger{background:#a32d2d;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;}
 .bdanger:hover{background:#c0392b;}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-.stat{background:#161e2d;border:1px solid #2d4a6a;border-radius:3px;padding:10px 14px;}
-.sl{font-size:10px;color:#4a6a88;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
-.sv{font-size:20px;font-weight:600;color:#d1dce8;}
-.card{background:#161e2d;border:1px solid #2d4a6a;border-radius:3px;padding:14px;margin-bottom:12px;}
-.ct{font-size:11px;font-weight:600;color:#d1dce8;margin-bottom:12px;text-transform:uppercase;letter-spacing:.03em;}
+.stat{border-radius:3px;padding:10px 14px;}
+.dark .stat{background:#161e2d;border:1px solid #2d4a6a;}
+.light .stat{background:#fff;border:1px solid #d5dbdb;}
+.sl{font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.dark .sl{color:#4a6a88;}
+.light .sl{color:#879596;}
+.sv{font-size:20px;font-weight:600;}
+.dark .sv{color:#d1dce8;}
+.light .sv{color:#16191f;}
+.card{border-radius:3px;padding:14px;margin-bottom:12px;}
+.dark .card{background:#161e2d;border:1px solid #2d4a6a;}
+.light .card{background:#fff;border:1px solid #d5dbdb;}
+.ct{font-size:11px;font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:.03em;}
+.dark .ct{color:#d1dce8;}
+.light .ct{color:#16191f;}
 .row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
 .fld{flex:1;min-width:130px;}
-.fl{display:block;font-size:10px;color:#8aa8c4;margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
-.fi{width:100%;border:1px solid #2d4a6a;border-radius:3px;padding:6px 9px;font-size:12px;background:#0f1b2d;color:#d1dce8;outline:none;}
-.fi:focus{border-color:#5b9bd5;box-shadow:0 0 0 1px #5b9bd5;}
-.fi-ta{width:100%;border:1px solid #2d4a6a;border-radius:3px;padding:6px 9px;font-size:12px;background:#0f1b2d;color:#d1dce8;outline:none;resize:vertical;min-height:80px;font-family:monospace;}
-.fi-ta:focus{border-color:#5b9bd5;}
-.hint{font-size:11px;color:#4a6a88;margin-top:8px;}
+.fl{display:block;font-size:10px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;}
+.dark .fl{color:#8aa8c4;}
+.light .fl{color:#545b64;}
+.fi{width:100%;border-radius:3px;padding:6px 9px;font-size:12px;outline:none;}
+.dark .fi{border:1px solid #2d4a6a;background:#0f1b2d;color:#d1dce8;}
+.dark .fi:focus{border-color:#5b9bd5;}
+.light .fi{border:1px solid #aab7b8;background:#fff;color:#16191f;}
+.light .fi:focus{border-color:#0073bb;}
+.fi-ta{width:100%;border-radius:3px;padding:6px 9px;font-size:12px;outline:none;resize:vertical;min-height:80px;font-family:monospace;}
+.dark .fi-ta{border:1px solid #2d4a6a;background:#0f1b2d;color:#d1dce8;}
+.light .fi-ta{border:1px solid #aab7b8;background:#fff;color:#16191f;}
+.hint{font-size:11px;margin-top:8px;}
+.dark .hint{color:#4a6a88;}
+.light .hint{color:#879596;}
 .msg{padding:8px 12px;border-radius:3px;font-size:12px;margin-bottom:12px;display:none;}
 .msg.show{display:block;}
-.msg.ok{background:#0d3322;color:#3dba7a;border:1px solid #1a5e3a;}
-.msg.err{background:#2d0f0f;color:#e05252;border:1px solid #5e1a1a;}
-.msg.inf{background:#0d1f35;color:#8aa8c4;border:1px solid #1a3a5e;}
-.tbl{background:#161e2d;border:1px solid #2d4a6a;border-radius:3px;overflow:hidden;margin-bottom:12px;}
-.tt{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #2d4a6a;background:#0f1b2d;}
-.tn{font-size:12px;font-weight:600;color:#d1dce8;}
+.dark .msg.ok{background:#0d3322;color:#3dba7a;border:1px solid #1a5e3a;}
+.dark .msg.err{background:#2d0f0f;color:#e05252;border:1px solid #5e1a1a;}
+.dark .msg.inf{background:#0d1f35;color:#8aa8c4;border:1px solid #1a3a5e;}
+.light .msg.ok{background:#e8f5e9;color:#1b5e20;border:1px solid #c8e6c9;}
+.light .msg.err{background:#ffebee;color:#b71c1c;border:1px solid #ffcdd2;}
+.light .msg.inf{background:#e3f2fd;color:#0d47a1;border:1px solid #bbdefb;}
+.tbl{border-radius:3px;overflow:hidden;margin-bottom:12px;}
+.dark .tbl{background:#161e2d;border:1px solid #2d4a6a;}
+.light .tbl{background:#fff;border:1px solid #d5dbdb;}
+.tt{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid;}
+.dark .tt{background:#0f1b2d;border-color:#2d4a6a;}
+.light .tt{background:#fafafa;border-color:#d5dbdb;}
+.tn{font-size:12px;font-weight:600;}
+.dark .tn{color:#d1dce8;}
+.light .tn{color:#16191f;}
 .fps{display:flex;gap:3px;}
-.fp{font-size:11px;padding:3px 8px;border-radius:3px;border:1px solid #2d4a6a;cursor:pointer;color:#8aa8c4;background:#1b2b3f;}
-.fp.on{background:#ec7211;color:#fff;border-color:#ec7211;}
-.thead{display:grid;gap:6px;padding:6px 12px;border-bottom:1px solid #2d4a6a;background:#0f1b2d;}
-.thc{font-size:10px;font-weight:600;color:#4a6a88;text-transform:uppercase;letter-spacing:.04em;}
-.dr{display:grid;gap:6px;padding:9px 12px;border-bottom:1px solid #1a2d45;align-items:center;}
+.fp{font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;}
+.dark .fp{border:1px solid #2d4a6a;color:#8aa8c4;background:#1b2b3f;}
+.dark .fp.on{background:#ec7211;color:#fff;border-color:#ec7211;}
+.light .fp{border:1px solid #d5dbdb;color:#545b64;background:#fff;}
+.light .fp.on{background:#0073bb;color:#fff;border-color:#0073bb;}
+.thead{display:grid;gap:6px;padding:6px 12px;border-bottom:1px solid;}
+.dark .thead{background:#0f1b2d;border-color:#2d4a6a;}
+.light .thead{background:#fafafa;border-color:#d5dbdb;}
+.thc{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.dark .thc{color:#4a6a88;}
+.light .thc{color:#879596;}
+.dr{display:grid;gap:6px;padding:9px 12px;border-bottom:1px solid;}
+.dark .dr{border-color:#1a2d45;}
+.light .dr{border-color:#f0f0f0;}
 .dr:last-child{border-bottom:none;}
-.dr:hover{background:#1a2535;}
-.dn{font-size:12px;font-weight:500;color:#5b9bd5;}
-.dm{font-size:10px;color:#4a6a88;margin-top:2px;}
-.chip{font-size:10px;font-family:monospace;padding:2px 7px;border-radius:3px;background:#1a2d42;color:#5b9bd5;border:1px solid #2d4a6a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
-.chip.b{background:#1a2a0a;color:#7ec657;border-color:#3b6d11;}
-.chip.f{background:#2d0f0f;color:#e05252;border-color:#a32d2d;}
+.dark .dr:hover{background:#1a2535;}
+.light .dr:hover{background:#f8f8f8;}
+.dn{font-size:12px;font-weight:500;}
+.dark .dn{color:#5b9bd5;}
+.light .dn{color:#0073bb;}
+.dm{font-size:10px;margin-top:2px;}
+.dark .dm{color:#4a6a88;}
+.light .dm{color:#879596;}
+.chip{font-size:10px;font-family:monospace;padding:2px 7px;border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
+.dark .chip{background:#1a2d42;color:#5b9bd5;border:1px solid #2d4a6a;}
+.light .chip{background:#e8f4ff;color:#0073bb;border:1px solid #aad4f0;}
+.dark .chip.b{background:#1a2a0a;color:#7ec657;border-color:#3b6d11;}
+.light .chip.b{background:#f0fae6;color:#3b6d11;border-color:#c0dd97;}
+.dark .chip.f{background:#2d0f0f;color:#e05252;border-color:#a32d2d;}
+.light .chip.f{background:#ffebee;color:#b71c1c;border-color:#ffcdd2;}
 .badge{font-size:10px;padding:2px 8px;border-radius:3px;font-weight:500;white-space:nowrap;}
-.badge.live{background:#0d3322;color:#3dba7a;}
-.badge.building{background:#1a2a0a;color:#7ec657;}
-.badge.failed{background:#2d0f0f;color:#e05252;}
-.exp{font-size:11px;color:#4a6a88;}
+.dark .badge.live{background:#0d3322;color:#3dba7a;}
+.light .badge.live{background:#e8f5e9;color:#1b5e20;}
+.dark .badge.building{background:#1a2a0a;color:#7ec657;}
+.light .badge.building{background:#f0fae6;color:#3b6d11;}
+.dark .badge.failed{background:#2d0f0f;color:#e05252;}
+.light .badge.failed{background:#ffebee;color:#b71c1c;}
+.exp{font-size:11px;}
+.dark .exp{color:#4a6a88;}
+.light .exp{color:#879596;}
 .acts{display:flex;gap:3px;}
-.ib{width:26px;height:26px;border-radius:3px;border:1px solid #2d4a6a;background:#1b2b3f;cursor:pointer;color:#8aa8c4;font-size:13px;display:flex;align-items:center;justify-content:center;padding:0;}
-.ib:hover{border-color:#5b9bd5;color:#5b9bd5;}
-.ib.del:hover{border-color:#e05252;color:#e05252;background:#2d0f0f;}
-.empty{padding:28px;text-align:center;color:#4a6a88;font-size:12px;}
+.ib{width:26px;height:26px;border-radius:3px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;padding:0;}
+.dark .ib{border:1px solid #2d4a6a;background:#1b2b3f;color:#8aa8c4;}
+.dark .ib:hover{border-color:#5b9bd5;color:#5b9bd5;}
+.dark .ib.del:hover{border-color:#e05252;color:#e05252;background:#2d0f0f;}
+.light .ib{border:1px solid #d5dbdb;background:#fff;color:#545b64;}
+.light .ib:hover{border-color:#0073bb;color:#0073bb;}
+.light .ib.del:hover{border-color:#b71c1c;color:#b71c1c;background:#ffebee;}
+.empty{padding:28px;text-align:center;font-size:12px;}
+.dark .empty{color:#4a6a88;}
+.light .empty{color:#879596;}
 .logs-wrap{margin-top:12px;}
 .logs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.logs-title{font-size:12px;font-weight:600;color:#d1dce8;}
-.logs-box{background:#060e18;border:1px solid #2d4a6a;border-radius:3px;padding:12px;font-family:monospace;font-size:11px;color:#8aa8c4;max-height:250px;overflow-y:auto;line-height:1.6;}
-.srow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #2d4a6a;}
+.logs-title{font-size:12px;font-weight:600;}
+.dark .logs-title{color:#d1dce8;}
+.light .logs-title{color:#16191f;}
+.logs-box{border-radius:3px;padding:12px;font-family:monospace;font-size:11px;max-height:250px;overflow-y:auto;line-height:1.6;}
+.dark .logs-box{background:#060e18;border:1px solid #2d4a6a;color:#8aa8c4;}
+.light .logs-box{background:#f8f8f8;border:1px solid #d5dbdb;color:#545b64;}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid;}
+.dark .srow{border-color:#2d4a6a;}
+.light .srow{border-color:#e8e8e8;}
 .srow:last-child{border-bottom:none;}
-.slabel{font-size:12px;color:#d1dce8;font-weight:500;}
-.sdesc{font-size:11px;color:#4a6a88;margin-top:2px;}
-.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;background:#1a2d42;color:#5b9bd5;border:1px solid #2d4a6a;margin:2px;}
-.divider{border:none;border-top:1px solid #2d4a6a;margin:12px 0;}
+.slabel{font-size:12px;font-weight:500;}
+.dark .slabel{color:#d1dce8;}
+.light .slabel{color:#16191f;}
+.sdesc{font-size:11px;margin-top:2px;}
+.dark .sdesc{color:#4a6a88;}
+.light .sdesc{color:#879596;}
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;margin:2px;}
+.dark .tag{background:#1a2d42;color:#5b9bd5;border:1px solid #2d4a6a;}
+.light .tag{background:#e8f4ff;color:#0073bb;border:1px solid #aad4f0;}
+.divider{border:none;margin:12px 0;}
+.dark .divider{border-top:1px solid #2d4a6a;}
+.light .divider{border-top:1px solid #e8e8e8;}
 </style>
 </head>
-<body>
+<body class="dark">
 
 <div class="top">
   <div class="logo">
@@ -99,18 +191,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
     <span>FlashDeploy</span>
     <span style="color:#aab7b8;font-size:10px;font-weight:400;margin-left:4px;">Console</span>
   </div>
-  <div style="display:flex;align-items:center;gap:14px;">
+  <div class="top-right">
     <span style="color:#8aa8c4;font-size:11px;" id="ip-display">54.204.232.10</span>
+    <div class="theme-sw">
+      <button class="tsw on" id="btn-dark" onclick="setTheme('dark')">Dark</button>
+      <button class="tsw" id="btn-light" onclick="setTheme('light')">Light</button>
+    </div>
     <span style="color:#8aa8c4;font-size:11px;">Admin</span>
   </div>
-</div>
-
-<div class="subnav">
-  <div class="sni on" data-page="dashboard">Dashboard</div>
-  <div class="sni" data-page="deployments">Deployments</div>
-  <div class="sni" data-page="new-deploy">New Deploy</div>
-  <div class="sni" data-page="analytics">Analytics</div>
-  <div class="sni" data-page="settings">Settings</div>
 </div>
 
 <div class="layout">
@@ -191,7 +279,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           </div>
         </div>
         <div class="thead" style="grid-template-columns:1fr 180px 80px 65px 70px 90px;">
-          <div class="thc">Name / Repo</div><div class="thc">Access URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Created</div><div class="thc">Actions</div>
+          <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Created</div><div class="thc">Actions</div>
         </div>
         <div id="dep-list2"><div class="empty">No deployments yet.</div></div>
       </div>
@@ -216,7 +304,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
               <option value="master">master</option>
               <option value="dev">dev</option>
               <option value="staging">staging</option>
-              <option value="production">production</option>
             </select>
           </div>
           <div class="fld" style="max-width:130px;">
@@ -232,18 +319,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         <div class="ct">Environment Variables (Optional)</div>
         <div class="fld">
           <label class="fl">KEY=VALUE, one per line</label>
-          <textarea class="fi-ta" id="inp-env" placeholder="DATABASE_URL=postgres://...&#10;API_KEY=your_key&#10;PORT=3000"></textarea>
+          <textarea class="fi-ta" id="inp-env" placeholder="DATABASE_URL=postgres://...&#10;API_KEY=your_key"></textarea>
         </div>
         <hr class="divider">
         <div style="display:flex;gap:8px;margin-top:4px;">
           <button class="bp" id="btn-deploy" style="min-width:130px;">&#128640; Deploy Now</button>
           <button class="bs" id="btn-cancel-deploy">Cancel</button>
         </div>
-        <div class="hint">&#10003; Auto-detects Node.js, React/Next.js, Python, static HTML &mdash; no Dockerfile needed.</div>
+        <div class="hint">&#10003; Auto-detects Node.js, React, Python, static HTML &mdash; no Dockerfile needed.</div>
       </div>
       <div class="card">
-        <div class="ct">Supported Project Types</div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:12px;color:#8aa8c4;">
+        <div class="ct">Supported Types</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:12px;">
           <div><span class="tag">Node.js</span> package.json &rarr; npm start</div>
           <div><span class="tag">React/Next</span> builds &rarr; nginx</div>
           <div><span class="tag">Python</span> requirements.txt &rarr; app.py</div>
@@ -258,7 +345,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="bc"><a>FlashDeploy</a> &rsaquo; Analytics</div>
       <div class="ph"><div class="pt">Analytics</div></div>
       <div class="stats">
-        <div class="stat"><div class="sl">Total Deployments</div><div class="sv" id="an-total">0</div></div>
+        <div class="stat"><div class="sl">Total</div><div class="sv" id="an-total">0</div></div>
         <div class="stat"><div class="sl">Live</div><div class="sv" id="an-live" style="color:#3dba7a">0</div></div>
         <div class="stat"><div class="sl">Failed</div><div class="sv" id="an-failed" style="color:#e05252">0</div></div>
         <div class="stat"><div class="sl">Success Rate</div><div class="sv" id="an-rate" style="color:#5b9bd5">0%</div></div>
@@ -324,22 +411,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         <div class="ct">Deployment Defaults</div>
         <div class="srow">
           <div><div class="slabel">Default Expiry</div><div class="sdesc">Applied to new deployments</div></div>
-          <select class="fi" id="setting-expiry" style="width:130px;">
-            <option value="7days">7 days</option>
-            <option value="30days" selected>30 days</option>
-            <option value="90days">90 days</option>
-          </select>
+          <select class="fi" id="setting-expiry" style="width:130px;"><option value="7days">7 days</option><option value="30days" selected>30 days</option><option value="90days">90 days</option></select>
         </div>
         <div class="srow">
           <div><div class="slabel">Default Branch</div><div class="sdesc">Default branch to deploy</div></div>
-          <select class="fi" id="setting-branch" style="width:130px;">
-            <option value="main">main</option>
-            <option value="master">master</option>
-          </select>
+          <select class="fi" id="setting-branch" style="width:130px;"><option value="main">main</option><option value="master">master</option></select>
         </div>
-        <div style="margin-top:12px;">
-          <button class="bp" id="btn-save-defaults">Save Defaults</button>
-        </div>
+        <div style="margin-top:12px;"><button class="bp" id="btn-save-defaults">Save Defaults</button></div>
       </div>
       <div class="card" style="border-color:#a32d2d;">
         <div class="ct" style="color:#e05252;">Danger Zone</div>
@@ -354,7 +432,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </div>
 
 <script>
-var deps=[];var filter='all';var filter2='all';var currentPage='dashboard';var pollTimer=null;
+var deps=[],filter='all',filter2='all',currentPage='dashboard';
 var cfg={ip:localStorage.getItem('fd_ip')||'54.204.232.10',token:localStorage.getItem('fd_token')||'',expiry:localStorage.getItem('fd_expiry')||'30days',branch:localStorage.getItem('fd_branch')||'main'};
 
 document.getElementById('setting-ip').value=cfg.ip;
@@ -365,18 +443,25 @@ document.getElementById('ip-display').textContent=cfg.ip;
 document.getElementById('inp-expiry').value=cfg.expiry;
 document.getElementById('inp-branch').value=cfg.branch;
 
+function setTheme(t){
+  document.body.className=t;
+  document.getElementById('btn-dark').classList.toggle('on',t==='dark');
+  document.getElementById('btn-light').classList.toggle('on',t==='light');
+  localStorage.setItem('fd_theme',t);
+}
+var savedTheme=localStorage.getItem('fd_theme')||'dark';
+setTheme(savedTheme);
+
 function goTo(page){
   currentPage=page;
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
-  var el=document.getElementById('page-'+page);
-  if(el)el.classList.add('on');
-  document.querySelectorAll('.sni,.si').forEach(function(n){n.classList.toggle('on',n.getAttribute('data-page')===page);});
+  var el=document.getElementById('page-'+page);if(el)el.classList.add('on');
+  document.querySelectorAll('.si').forEach(function(n){n.classList.toggle('on',n.getAttribute('data-page')===page);});
   if(page==='analytics')renderAnalytics();
   if(page==='logs-page')populateLogSelect();
   if(page==='deployments')renderDeps2();
 }
-
-document.querySelectorAll('.sni,.si').forEach(function(el){el.onclick=function(){goTo(this.getAttribute('data-page'));};});
+document.querySelectorAll('.si').forEach(function(el){el.onclick=function(){goTo(this.getAttribute('data-page'));};});
 
 function showMsg(id,text,type,dur){
   var el=document.getElementById(id);if(!el)return;
@@ -384,37 +469,20 @@ function showMsg(id,text,type,dur){
   if(dur!==0)setTimeout(function(){el.className='msg';},dur||3000);
 }
 
-function daysLeft(ts){
-  var d=ts-Date.now();if(d<0)return'Expired';
-  var days=Math.floor(d/86400000);var hrs=Math.floor((d%86400000)/3600000);
-  return days>0?days+'d':hrs+'h';
-}
-
+function daysLeft(ts){var d=ts-Date.now();if(d<0)return'Expired';var days=Math.floor(d/86400000);var hrs=Math.floor((d%86400000)/3600000);return days>0?days+'d':hrs+'h';}
 function repoName(url){return(url||'').split('/').pop().replace('.git','');}
-
-function fmtDate(ts){
-  var d=new Date(ts);
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
-}
+function fmtDate(ts){var d=new Date(ts);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});}
 
 function chipHtml(dep){
   var txt=dep.status==='live'?(dep.accessUrl||'live'):dep.status==='building'?'Building...':(dep.errorMsg||'Failed');
   var cls=dep.status==='building'?'chip b':dep.status==='failed'?'chip f':'chip';
   return '<span class="'+cls+'">'+txt+'</span>';
 }
-
-function badgeHtml(s){
-  var t=s==='live'?'Running':s==='building'?'Building':'Failed';
-  return '<span class="badge '+s+'">'+t+'</span>';
-}
-
+function badgeHtml(s){var t=s==='live'?'Running':s==='building'?'Building':'Failed';return '<span class="badge '+s+'">'+t+'</span>';}
 function actHtml(dep){
   var h='';
-  if(dep.status==='live'&&dep.accessUrl){
-    h+='<button class="ib" title="Open" onclick="openApp(\''+dep.accessUrl+'\')">&#8599;</button>';
-    h+='<button class="ib" title="Copy URL" onclick="copyUrl(\''+dep.accessUrl+'\')">&#9064;</button>';
-  }
-  h+='<button class="ib" title="View logs" onclick="viewLogs(\''+dep.id+'\')">&#8801;</button>';
+  if(dep.status==='live'&&dep.accessUrl){h+='<button class="ib" title="Open" onclick="openApp(\''+dep.accessUrl+'\')">&#8599;</button>';h+='<button class="ib" title="Copy" onclick="copyUrl(\''+dep.accessUrl+'\')">&#9064;</button>';}
+  h+='<button class="ib" title="Logs" onclick="viewLogs(\''+dep.id+'\')">&#8801;</button>';
   h+='<button class="ib del" title="Delete" onclick="delDep(\''+dep.id+'\')">&#10005;</button>';
   return h;
 }
@@ -445,8 +513,7 @@ function renderDash(){
     html+='<div class="dr" style="grid-template-columns:1fr 180px 90px 65px 90px;">';
     html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+'</div></div>';
     html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
-    html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div>';
-    html+='<div class="acts">'+actHtml(d)+'</div></div>';
+    html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
   });
   document.getElementById('dep-list').innerHTML=html;
 }
@@ -460,8 +527,7 @@ function renderDeps2(){
     html+='<div class="dr" style="grid-template-columns:1fr 180px 80px 65px 70px 90px;">';
     html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.repoUrl||'')+'</div></div>';
     html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
-    html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div>';
-    html+='<div class="exp">'+fmtDate(d.createdAt)+'</div>';
+    html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="exp">'+fmtDate(d.createdAt)+'</div>';
     html+='<div class="acts">'+actHtml(d)+'</div></div>';
   });
   document.getElementById('dep-list2').innerHTML=html;
@@ -470,37 +536,24 @@ function renderDeps2(){
 function renderAnalytics(){
   var live=deps.filter(function(d){return d.status==='live';}).length;
   var failed=deps.filter(function(d){return d.status==='failed';}).length;
-  var total=deps.length;
-  var rate=total>0?Math.round(((total-failed)/total)*100):0;
-  document.getElementById('an-total').textContent=total;
-  document.getElementById('an-live').textContent=live;
-  document.getElementById('an-failed').textContent=failed;
-  document.getElementById('an-rate').textContent=rate+'%';
-  var types={};
-  deps.forEach(function(d){var t=d.projectType||'unknown';types[t]=(types[t]||0)+1;});
+  var total=deps.length;var rate=total>0?Math.round(((total-failed)/total)*100):0;
+  document.getElementById('an-total').textContent=total;document.getElementById('an-live').textContent=live;
+  document.getElementById('an-failed').textContent=failed;document.getElementById('an-rate').textContent=rate+'%';
+  var types={};deps.forEach(function(d){var t=d.projectType||'unknown';types[t]=(types[t]||0)+1;});
   document.getElementById('an-types').innerHTML=Object.keys(types).map(function(t){return'<span class="tag">'+t+': '+types[t]+'</span>';}).join('')||'<span style="color:#4a6a88">No data yet</span>';
-  var actHtml2=deps.slice(0,10).map(function(d){
+  document.getElementById('an-activity').innerHTML=deps.slice(0,10).map(function(d){
     return'<div style="padding:6px 0;border-bottom:1px solid #2d4a6a;display:flex;justify-content:space-between;align-items:center;"><span class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</span>'+badgeHtml(d.status)+'</div>';
-  }).join('');
-  document.getElementById('an-activity').innerHTML=actHtml2||'<div class="empty">No activity yet.</div>';
+  }).join('')||'<div class="empty">No activity yet.</div>';
 }
 
 function populateLogSelect(){
   var sel=document.getElementById('log-dep-select');
-  sel.innerHTML='<option value="">-- Select deployment --</option>';
-  deps.forEach(function(d){
-    var opt=document.createElement('option');
-    opt.value=d.id;opt.textContent=d.id+' - '+repoName(d.repoUrl)+' ('+d.status+')';
-    sel.appendChild(opt);
-  });
+  sel.innerHTML='<option value="">-- Select --</option>';
+  deps.forEach(function(d){var opt=document.createElement('option');opt.value=d.id;opt.textContent=d.id+' - '+repoName(d.repoUrl)+' ('+d.status+')';sel.appendChild(opt);});
 }
 
 function openApp(url){window.open(url,'_blank');}
-
-function copyUrl(url){
-  navigator.clipboard.writeText(url).then(function(){showMsg('dash-msg','URL copied!','ok');}).catch(function(){showMsg('dash-msg','URL: '+url,'inf');});
-}
-
+function copyUrl(url){navigator.clipboard.writeText(url).then(function(){showMsg('dash-msg','URL copied!','ok');}).catch(function(){showMsg('dash-msg','URL: '+url,'inf');});}
 function viewLogs(id){
   document.getElementById('logs-dep-id').textContent=id;
   document.getElementById('logs-wrap').style.display='block';
@@ -509,17 +562,15 @@ function viewLogs(id){
     var logs=data.logs||[];
     document.getElementById('logs-box').innerHTML=logs.length===0?'<div style="color:#4a6a88;">No logs yet...</div>':logs.map(function(l){return'<div style="padding:1px 0;border-bottom:1px solid #1a2d45;">'+l+'</div>';}).join('');
     var box=document.getElementById('logs-box');box.scrollTop=box.scrollHeight;
-  }).catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');});
+  });
 }
-
 function delDep(id){
-  if(!confirm('Delete deployment '+id+'? This will stop the container.'))return;
+  if(!confirm('Delete deployment '+id+'?'))return;
   fetch('/deployments/'+id,{method:'DELETE'}).then(function(r){return r.json();}).then(function(data){
     if(data.error)throw new Error(data.error);
     showMsg('dash-msg','Deleted!','ok');loadDeps();
   }).catch(function(e){showMsg('dash-msg','Delete failed: '+e.message,'err');});
 }
-
 function doDeploy(){
   var url=document.getElementById('inp-url').value.trim();
   var branch=document.getElementById('inp-branch').value;
@@ -528,16 +579,14 @@ function doDeploy(){
   if(!url){showMsg('new-msg','Please enter a GitHub repository URL','err');return;}
   var envVars={};
   if(envRaw){envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
-  var btn=document.getElementById('btn-deploy');
-  btn.disabled=true;btn.textContent='Deploying...';
-  showMsg('new-msg','Starting deployment...','inf',0);
+  var btn=document.getElementById('btn-deploy');btn.disabled=true;btn.textContent='Deploying...';
+  showMsg('new-msg','Starting...','inf',0);
   fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repoUrl:url,branch:branch,expiry:expiry,envVars:envVars})})
   .then(function(r){return r.json();})
   .then(function(data){
     if(data.error)throw new Error(data.error);
-    showMsg('new-msg','Deployment started! ID: '+data.id+' — Check Dashboard for status.','ok');
-    document.getElementById('inp-url').value='';
-    document.getElementById('inp-env').value='';
+    showMsg('new-msg','Deployment started! ID: '+data.id,'ok');
+    document.getElementById('inp-url').value='';document.getElementById('inp-env').value='';
     setTimeout(function(){loadDeps();goTo('dashboard');},2000);
   })
   .catch(function(e){showMsg('new-msg','Error: '+e.message,'err');})
@@ -557,55 +606,18 @@ document.getElementById('inp-url').onkeydown=function(e){if(e.key==='Enter')doDe
 document.querySelectorAll('[data-f]').forEach(function(btn){
   btn.onclick=function(){filter=this.getAttribute('data-f');document.querySelectorAll('[data-f]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDash();};
 });
-
 document.querySelectorAll('[data-f2]').forEach(function(btn){
   btn.onclick=function(){filter2=this.getAttribute('data-f2');document.querySelectorAll('[data-f2]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDeps2();};
 });
 
-document.getElementById('btn-save-ip').onclick=function(){
-  var ip=document.getElementById('setting-ip').value.trim();
-  if(!ip){showMsg('settings-msg','Please enter a valid IP','err');return;}
-  cfg.ip=ip;localStorage.setItem('fd_ip',ip);
-  document.getElementById('ip-display').textContent=ip;
-  showMsg('settings-msg','Server IP saved!','ok');
-};
-
-document.getElementById('btn-save-token').onclick=function(){
-  var token=document.getElementById('setting-token').value.trim();
-  cfg.token=token;localStorage.setItem('fd_token',token);
-  showMsg('settings-msg','GitHub token saved!','ok');
-};
-
-document.getElementById('btn-save-defaults').onclick=function(){
-  cfg.expiry=document.getElementById('setting-expiry').value;
-  cfg.branch=document.getElementById('setting-branch').value;
-  localStorage.setItem('fd_expiry',cfg.expiry);localStorage.setItem('fd_branch',cfg.branch);
-  document.getElementById('inp-expiry').value=cfg.expiry;
-  document.getElementById('inp-branch').value=cfg.branch;
-  showMsg('settings-msg','Defaults saved!','ok');
-};
-
-document.getElementById('btn-delete-failed').onclick=function(){
-  var failed=deps.filter(function(d){return d.status==='failed';});
-  if(!failed.length){showMsg('settings-msg','No failed deployments','inf');return;}
-  if(!confirm('Delete all '+failed.length+' failed deployments?'))return;
-  Promise.all(failed.map(function(d){return fetch('/deployments/'+d.id,{method:'DELETE'});}))
-  .then(function(){showMsg('settings-msg','Deleted '+failed.length+' failed deployments!','ok');loadDeps();});
-};
-
-document.getElementById('btn-load-logs').onclick=function(){
-  var id=document.getElementById('log-dep-select').value;if(!id)return;
-  document.getElementById('activity-logs-wrap').style.display='block';
-  document.getElementById('activity-logs-box').innerHTML='<div style="color:#4a6a88;">Loading...</div>';
-  fetch('/deployments/'+id+'/logs').then(function(r){return r.json();}).then(function(data){
-    var logs=data.logs||[];
-    document.getElementById('activity-logs-box').innerHTML=logs.length===0?'<div style="color:#4a6a88;">No logs.</div>':logs.map(function(l){return'<div style="padding:1px 0;border-bottom:1px solid #1a2d45;">'+l+'</div>';}).join('');
-    var box=document.getElementById('activity-logs-box');box.scrollTop=box.scrollHeight;
-  });
-};
+document.getElementById('btn-save-ip').onclick=function(){var ip=document.getElementById('setting-ip').value.trim();if(!ip){showMsg('settings-msg','Enter a valid IP','err');return;}cfg.ip=ip;localStorage.setItem('fd_ip',ip);document.getElementById('ip-display').textContent=ip;showMsg('settings-msg','Server IP saved!','ok');};
+document.getElementById('btn-save-token').onclick=function(){var token=document.getElementById('setting-token').value.trim();cfg.token=token;localStorage.setItem('fd_token',token);showMsg('settings-msg','Token saved!','ok');};
+document.getElementById('btn-save-defaults').onclick=function(){cfg.expiry=document.getElementById('setting-expiry').value;cfg.branch=document.getElementById('setting-branch').value;localStorage.setItem('fd_expiry',cfg.expiry);localStorage.setItem('fd_branch',cfg.branch);document.getElementById('inp-expiry').value=cfg.expiry;document.getElementById('inp-branch').value=cfg.branch;showMsg('settings-msg','Defaults saved!','ok');};
+document.getElementById('btn-delete-failed').onclick=function(){var failed=deps.filter(function(d){return d.status==='failed';});if(!failed.length){showMsg('settings-msg','No failed deployments','inf');return;}if(!confirm('Delete all '+failed.length+' failed?'))return;Promise.all(failed.map(function(d){return fetch('/deployments/'+d.id,{method:'DELETE'});})).then(function(){showMsg('settings-msg','Deleted '+failed.length+' failed!','ok');loadDeps();});};
+document.getElementById('btn-load-logs').onclick=function(){var id=document.getElementById('log-dep-select').value;if(!id)return;document.getElementById('activity-logs-wrap').style.display='block';document.getElementById('activity-logs-box').innerHTML='<div style="color:#4a6a88;">Loading...</div>';fetch('/deployments/'+id+'/logs').then(function(r){return r.json();}).then(function(data){var logs=data.logs||[];document.getElementById('activity-logs-box').innerHTML=logs.length===0?'<div style="color:#4a6a88;">No logs.</div>':logs.map(function(l){return'<div style="padding:1px 0;">'+l+'</div>';}).join('');var box=document.getElementById('activity-logs-box');box.scrollTop=box.scrollHeight;});};
 
 loadDeps();
-pollTimer=setInterval(loadDeps,5000);
+setInterval(loadDeps,5000);
 </script>
 </body>
 </html>
