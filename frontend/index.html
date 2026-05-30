@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlashDeploy</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; background: #0f1b2d; color: #d1dce8; }
+.topbar { background: #232f3e; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 42px; flex-shrink: 0; }
+.logo { display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 700; }
+.logo-sq { width: 26px; height: 26px; background: #0073bb; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 15px; }
+.subnav { background: #1b2b3f; border-bottom: 1px solid #2d4060; display: flex; padding: 0 16px; }
+.sni { padding: 9px 14px; font-size: 12px; cursor: pointer; color: #8aa8c4; border-bottom: 2px solid transparent; }
+.sni.on { color: #0073bb; border-bottom-color: #0073bb; font-weight: 600; }
+.layout { display: flex; min-height: calc(100vh - 80px); }
+.sidebar { width: 185px; background: #0d1825; border-right: 1px solid #2d4060; padding: 10px 0; flex-shrink: 0; }
+.sid-sec { font-size: 10px; font-weight: 700; color: #4a6a88; padding: 10px 14px 3px; text-transform: uppercase; letter-spacing: .06em; }
+.sid-item { padding: 6px 14px 6px 22px; font-size: 12px; color: #8aa8c4; cursor: pointer; }
+.sid-item.on { color: #0073bb; background: #1e3a54; border-left: 2px solid #0073bb; }
+.sid-item:hover:not(.on) { background: #1a2d42; }
+.main { flex: 1; padding: 18px; overflow-y: auto; }
+.breadcrumb { font-size: 12px; color: #8aa8c4; margin-bottom: 12px; }
+.breadcrumb span { color: #0073bb; }
+.pg-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.pg-title { font-size: 16px; font-weight: 700; color: #d1dce8; }
+.btn-row { display: flex; gap: 6px; }
+.btn-p { background: #0073bb; color: #fff; border: none; border-radius: 4px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-p:hover { background: #005d99; }
+.btn-p:disabled { background: #4a6a88; cursor: not-allowed; }
+.btn-s { background: #1b2b3f; color: #d1dce8; border: 1px solid #2d4060; border-radius: 4px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+.btn-s:hover { background: #243447; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.stat { background: #1b2b3f; border: 1px solid #2d4060; border-radius: 4px; padding: 12px 14px; }
+.stat-l { font-size: 10px; color: #4a6a88; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; }
+.stat-v { font-size: 22px; font-weight: 700; color: #d1dce8; }
+.card { background: #1b2b3f; border: 1px solid #2d4060; border-radius: 4px; padding: 14px; margin-bottom: 14px; }
+.card-title { font-size: 11px; font-weight: 700; color: #d1dce8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.fields { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+.fld { flex: 1; min-width: 140px; }
+.fld label { display: block; font-size: 10px; color: #8aa8c4; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.fld input, .fld select { width: 100%; border: 1px solid #2d4060; border-radius: 3px; padding: 7px 9px; font-size: 12px; background: #162030; color: #d1dce8; outline: none; }
+.fld input:focus, .fld select:focus { border-color: #0073bb; }
+.hint { font-size: 11px; color: #4a6a88; margin-top: 8px; }
+.msg { padding: 8px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 12px; display: none; }
+.msg.show { display: block; }
+.msg.ok { background: #0d3322; color: #3dba7a; }
+.msg.err { background: #2d0f0f; color: #e05252; }
+.msg.inf { background: #162030; color: #8aa8c4; }
+.tbl { background: #1b2b3f; border: 1px solid #2d4060; border-radius: 4px; overflow: hidden; }
+.tbl-top { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-bottom: 1px solid #2d4060; background: #162030; }
+.tbl-title { font-size: 12px; font-weight: 600; color: #d1dce8; }
+.filters { display: flex; gap: 4px; }
+.fp { font-size: 11px; padding: 3px 10px; border-radius: 3px; border: 1px solid #2d4060; cursor: pointer; color: #8aa8c4; background: #1b2b3f; }
+.fp.on { background: #0073bb; color: #fff; border-color: #0073bb; }
+.thead { display: grid; grid-template-columns: 1fr 180px 90px 75px 90px; gap: 8px; padding: 7px 12px; border-bottom: 1px solid #2d4060; background: #162030; }
+.th { font-size: 10px; font-weight: 700; color: #8aa8c4; text-transform: uppercase; letter-spacing: .04em; }
+.drow { display: grid; grid-template-columns: 1fr 180px 90px 75px 90px; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #2d4060; align-items: center; }
+.drow:last-child { border-bottom: none; }
+.drow:hover { background: #162030; }
+.dname { font-size: 12px; font-weight: 600; color: #5b9bd5; }
+.dmeta { font-size: 10px; color: #4a6a88; margin-top: 2px; }
+.chip { font-size: 10px; font-family: monospace; padding: 3px 7px; border-radius: 3px; background: #1a2d42; color: #5b9bd5; border: 1px solid #2d4060; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.chip.building { background: #1a2a0a; color: #7ec657; border-color: #3b6d11; }
+.chip.failed { background: #2d0f0f; color: #e05252; border-color: #a32d2d; }
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 600; white-space: nowrap; }
+.badge.live { background: #0d3322; color: #3dba7a; }
+.badge.building { background: #1a2a0a; color: #7ec657; }
+.badge.failed { background: #2d0f0f; color: #e05252; }
+.exp { font-size: 11px; color: #4a6a88; }
+.acts { display: flex; gap: 3px; }
+.ib { width: 26px; height: 26px; border-radius: 3px; border: 1px solid #2d4060; background: #1b2b3f; cursor: pointer; color: #8aa8c4; font-size: 13px; display: flex; align-items: center; justify-content: center; padding: 0; }
+.ib:hover { border-color: #0073bb; color: #0073bb; }
+.ib.del:hover { border-color: #e05252; color: #e05252; background: #2d0f0f; }
+.empty { padding: 32px; text-align: center; color: #4a6a88; font-size: 13px; }
+.logs-wrap { margin-top: 12px; }
+.logs-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.logs-title { font-size: 12px; font-weight: 600; color: #d1dce8; }
+.logs-box { background: #0a1520; border: 1px solid #2d4060; border-radius: 4px; padding: 12px; font-family: monospace; font-size: 11px; color: #8aa8c4; max-height: 220px; overflow-y: auto; }
+.logs-line { padding: 1px 0; border-bottom: 1px solid rgba(45,64,96,0.3); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-sq">F</div>
+    <span>FlashDeploy</span>
+    <span style="color:#aab7b8;font-size:10px;font-weight:400;margin-left:4px;">Console</span>
+  </div>
+  <span style="color:#aab7b8;font-size:11px;">Admin</span>
+</div>
+
+<div class="subnav">
+  <div class="sni on">Dashboard</div>
+  <div class="sni">Deployments</div>
+  <div class="sni">Settings</div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sid-sec">FlashDeploy</div>
+    <div class="sid-item on">Dashboard</div>
+    <div class="sid-item">Deployments</div>
+    <div class="sid-item">Repositories</div>
+    <div class="sid-sec">Insights</div>
+    <div class="sid-item">Analytics</div>
+    <div class="sid-item">Activity log</div>
+    <div class="sid-sec">Admin</div>
+    <div class="sid-item">Team</div>
+    <div class="sid-item">Settings</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb"><span>FlashDeploy</span> &rsaquo; Dashboard</div>
+
+    <div class="pg-head">
+      <div class="pg-title" id="pg-title">Deployments (0)</div>
+      <div class="btn-row">
+        <button class="btn-s" id="btn-refresh">&#8635; Refresh</button>
+        <button class="btn-p" id="btn-new">+ New deployment</button>
+      </div>
+    </div>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-l">Total</div><div class="stat-v" id="s-total">0</div></div>
+      <div class="stat"><div class="stat-l">Live now</div><div class="stat-v" id="s-live" style="color:#3dba7a">0</div></div>
+      <div class="stat"><div class="stat-l">Building</div><div class="stat-v" id="s-building" style="color:#7ec657">0</div></div>
+      <div class="stat"><div class="stat-l">Failed</div><div class="stat-v" id="s-failed" style="color:#e05252">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Deploy from GitHub</div>
+      <div class="fields">
+        <div class="fld" style="flex:2;">
+          <label>Repository URL</label>
+          <input type="text" id="inp-url" placeholder="https://github.com/org/repo" />
+        </div>
+        <div class="fld" style="max-width:120px;">
+          <label>Branch</label>
+          <select id="inp-branch">
+            <option value="main">main</option>
+            <option value="master">master</option>
+            <option value="dev">dev</option>
+            <option value="staging">staging</option>
+          </select>
+        </div>
+        <div class="fld" style="max-width:120px;">
+          <label>Expires in</label>
+          <select id="inp-expiry">
+            <option value="7days">7 days</option>
+            <option value="30days" selected>30 days</option>
+            <option value="90days">90 days</option>
+          </select>
+        </div>
+        <button class="btn-p" id="btn-deploy" style="height:34px;margin-top:16px;min-width:90px;">&#128640; Deploy</button>
+      </div>
+      <div class="hint">&#10003; Auto-detects Node.js, React, Python, static HTML &mdash; no config needed.</div>
+    </div>
+
+    <div class="tbl">
+      <div class="tbl-top">
+        <div class="tbl-title" id="tbl-title">Deployments (0)</div>
+        <div class="filters">
+          <button class="fp on" data-f="all">All</button>
+          <button class="fp" data-f="live">Live</button>
+          <button class="fp" data-f="building">Building</button>
+          <button class="fp" data-f="failed">Failed</button>
+        </div>
+      </div>
+      <div class="thead">
+        <div class="th">Name</div>
+        <div class="th">URL / Status</div>
+        <div class="th">Status</div>
+        <div class="th">Expires</div>
+        <div class="th">Actions</div>
+      </div>
+      <div id="dep-list">
+        <div class="empty">No deployments yet. Deploy your first GitHub repo above!</div>
+      </div>
+    </div>
+
+    <div id="logs-wrap" class="logs-wrap" style="display:none;">
+      <div class="logs-head">
+        <div class="logs-title">Build logs &mdash; <span id="logs-id"></span></div>
+        <button class="btn-s" id="btn-logs-close" style="font-size:11px;padding:3px 8px;">Close</button>
+      </div>
+      <div class="logs-box" id="logs-box">
+        <div style="color:#4a6a88;">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var deps = [];
+var filter = 'all';
+var pollTimer = null;
+
+function msg(text, type, dur) {
+  var el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg show ' + type;
+  if (dur !== 0) setTimeout(function() { el.className = 'msg'; }, dur || 3000);
+}
+
+function daysLeft(ts) {
+  var d = ts - Date.now();
+  if (d < 0) return 'Expired';
+  var days = Math.floor(d / 86400000);
+  var hrs = Math.floor((d % 86400000) / 3600000);
+  return days > 0 ? days + 'd left' : hrs + 'h left';
+}
+
+function repoName(url) {
+  return (url || '').split('/').pop().replace('.git', '');
+}
+
+function render() {
+  var live = deps.filter(function(d) { return d.status === 'live'; }).length;
+  var building = deps.filter(function(d) { return d.status === 'building'; }).length;
+  var failed = deps.filter(function(d) { return d.status === 'failed'; }).length;
+
+  document.getElementById('pg-title').textContent = 'Deployments (' + deps.length + ')';
+  document.getElementById('s-total').textContent = deps.length;
+  document.getElementById('s-live').textContent = live;
+  document.getElementById('s-building').textContent = building;
+  document.getElementById('s-failed').textContent = failed;
+
+  var filtered = filter === 'all' ? deps : deps.filter(function(d) { return d.status === filter; });
+  document.getElementById('tbl-title').textContent = 'Deployments (' + filtered.length + ')';
+
+  if (filtered.length === 0) {
+    document.getElementById('dep-list').innerHTML = '<div class="empty">No deployments yet. Deploy your first GitHub repo above!</div>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(d) {
+    var urlTxt = d.status === 'live' ? (d.accessUrl || 'live') :
+                 d.status === 'building' ? 'Building...' : (d.errorMsg || 'Failed');
+    var chipCls = d.status === 'building' ? 'chip building' : d.status === 'failed' ? 'chip failed' : 'chip';
+    var badgeCls = 'badge ' + d.status;
+    var badgeTxt = d.status === 'live' ? 'Running' : d.status === 'building' ? 'Building' : 'Failed';
+
+    html += '<div class="drow">';
+    html += '<div><div class="dname">' + d.id + ' &mdash; ' + repoName(d.repoUrl) + '</div>';
+    html += '<div class="dmeta">' + (d.branch || 'main') + ' &middot; ' + (d.projectType || 'detecting') + '</div></div>';
+    html += '<div><span class="' + chipCls + '">' + urlTxt + '</span></div>';
+    html += '<div><span class="' + badgeCls + '">' + badgeTxt + '</span></div>';
+    html += '<div class="exp">' + daysLeft(d.expiresAt) + '</div>';
+    html += '<div class="acts">';
+    if (d.status === 'live' && d.accessUrl) {
+      html += '<button class="ib" title="Open app" onclick="openApp(\'' + d.accessUrl + '\')">&#8599;</button>';
+      html += '<button class="ib" title="Copy URL" onclick="copyUrl(\'' + d.accessUrl + '\')">&#9064;</button>';
+    }
+    html += '<button class="ib" title="View logs" onclick="viewLogs(\'' + d.id + '\')">&#8801;</button>';
+    html += '<button class="ib del" title="Delete" onclick="deleteDep(\'' + d.id + '\')">&#10005;</button>';
+    html += '</div></div>';
+  });
+  document.getElementById('dep-list').innerHTML = html;
+}
+
+function loadDeps() {
+  fetch('/deployments')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      deps = Array.isArray(data) ? data : [];
+      render();
+    })
+    .catch(function(e) { console.error('Load error:', e); });
+}
+
+function openApp(url) { window.open(url, '_blank'); }
+
+function copyUrl(url) {
+  navigator.clipboard.writeText(url)
+    .then(function() { msg('URL copied!', 'ok'); })
+    .catch(function() { msg('URL: ' + url, 'inf'); });
+}
+
+function viewLogs(id) {
+  document.getElementById('logs-id').textContent = id;
+  document.getElementById('logs-wrap').style.display = 'block';
+  document.getElementById('logs-box').innerHTML = '<div style="color:#4a6a88;">Loading...</div>';
+  fetch('/deployments/' + id + '/logs')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var logs = data.logs || [];
+      if (logs.length === 0) {
+        document.getElementById('logs-box').innerHTML = '<div style="color:#4a6a88;">No logs yet...</div>';
+      } else {
+        document.getElementById('logs-box').innerHTML = logs.map(function(l) {
+          return '<div class="logs-line">' + l + '</div>';
+        }).join('');
+        var box = document.getElementById('logs-box');
+        box.scrollTop = box.scrollHeight;
+      }
+    })
+    .catch(function(e) { msg('Logs error: ' + e.message, 'err'); });
+}
+
+function deleteDep(id) {
+  if (!confirm('Delete deployment ' + id + '?')) return;
+  fetch('/deployments/' + id, { method: 'DELETE' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) throw new Error(data.error);
+      msg('Deleted successfully!', 'ok');
+      loadDeps();
+    })
+    .catch(function(e) { msg('Delete failed: ' + e.message, 'err'); });
+}
+
+// Button: Refresh
+document.getElementById('btn-refresh').onclick = function() {
+  loadDeps();
+  msg('Refreshed!', 'ok');
+};
+
+// Button: New deployment (focus input)
+document.getElementById('btn-new').onclick = function() {
+  document.getElementById('inp-url').focus();
+  document.getElementById('inp-url').scrollIntoView({ behavior: 'smooth' });
+};
+
+// Button: Deploy
+document.getElementById('btn-deploy').onclick = function() {
+  var url = document.getElementById('inp-url').value.trim();
+  var branch = document.getElementById('inp-branch').value;
+  var expiry = document.getElementById('inp-expiry').value;
+
+  if (!url) { msg('Please enter a GitHub repository URL', 'err'); return; }
+
+  var btn = document.getElementById('btn-deploy');
+  btn.disabled = true;
+  btn.textContent = 'Deploying...';
+  msg('Starting deployment...', 'inf', 0);
+
+  fetch('/deploy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ repoUrl: url, branch: branch, expiry: expiry })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) throw new Error(data.error);
+    msg('Deployment started! ID: ' + data.id, 'ok');
+    document.getElementById('inp-url').value = '';
+    setTimeout(loadDeps, 1500);
+  })
+  .catch(function(e) { msg('Error: ' + e.message, 'err'); })
+  .finally(function() {
+    btn.disabled = false;
+    btn.innerHTML = '&#128640; Deploy';
+  });
+};
+
+// Enter key on URL input
+document.getElementById('inp-url').onkeydown = function(e) {
+  if (e.key === 'Enter') document.getElementById('btn-deploy').click();
+};
+
+// Filter buttons
+document.querySelectorAll('.fp').forEach(function(btn) {
+  btn.onclick = function() {
+    filter = this.getAttribute('data-f');
+    document.querySelectorAll('.fp').forEach(function(b) { b.classList.remove('on'); });
+    this.classList.add('on');
+    render();
+  };
+});
+
+// Close logs
+document.getElementById('btn-logs-close').onclick = function() {
+  document.getElementById('logs-wrap').style.display = 'none';
+};
+
+// Load on start
+loadDeps();
+
+// Auto-refresh every 5 seconds
+pollTimer = setInterval(loadDeps, 5000);
+</script>
+</body>
+</html>
