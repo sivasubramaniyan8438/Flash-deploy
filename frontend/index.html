@@ -12,12 +12,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .top{display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:40px;}
 .dark .top{background:#0f1b2d;border-bottom:1px solid #1a2d45;}
 .light .top{background:#232f3e;border-bottom:1px solid #1a2d45;}
-.logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:600;}
-.logo-sq{width:24px;height:24px;background:#ec7211;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;}
+.logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;user-select:none;}
+.logo:hover .logo-sq{background:#e68a00;}
+.logo-sq{width:24px;height:24px;background:#FF9900;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;transition:background 0.15s;}
 .top-right{display:flex;align-items:center;gap:10px;}
 .theme-sw{display:flex;background:#1a2433;border:1px solid #2d4060;border-radius:3px;overflow:hidden;}
 .tsw{padding:3px 10px;font-size:11px;cursor:pointer;border:none;background:transparent;color:#8aa8c4;}
-.tsw.on{background:#ec7211;color:#fff;}
+.tsw.on{background:#FF9900;color:#fff;}
 .layout{display:flex;min-height:calc(100vh - 40px);}
 .sb{width:180px;padding:8px 0;flex-shrink:0;}
 .dark .sb{background:#161e2d;border-right:1px solid #2d4a6a;}
@@ -28,8 +29,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .si{padding:5px 12px 5px 20px;font-size:12px;cursor:pointer;border-left:2px solid transparent;}
 .dark .si{color:#8aa8c4;}
 .light .si{color:#545b64;}
-.dark .si.on{color:#5b9bd5;background:#1a2d42;border-left-color:#5b9bd5;}
-.light .si.on{color:#0073bb;background:#e8f4ff;border-left-color:#0073bb;}
+.dark .si.on{color:#FF9900;background:#1a2d42;border-left-color:#FF9900;}
+.light .si.on{color:#e68a00;background:#fff8ee;border-left-color:#FF9900;}
 .dark .si:hover:not(.on){background:#1a2535;color:#d1dce8;}
 .light .si:hover:not(.on){background:#f5f5f5;color:#16191f;}
 .main{flex:1;padding:16px;overflow-y:auto;}
@@ -38,16 +39,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .bc{font-size:11px;margin-bottom:10px;}
 .dark .bc{color:#8aa8c4;}
 .light .bc{color:#545b64;}
-.bc a{cursor:pointer;}
-.dark .bc a{color:#5b9bd5;}
-.light .bc a{color:#0073bb;}
+.bc a{cursor:pointer;text-decoration:none;}
+.dark .bc a{color:#FF9900;}
+.light .bc a{color:#e68a00;}
+.dark .bc a:hover{color:#ffb84d;}
+.light .bc a:hover{color:#cc7700;}
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .pt{font-size:15px;font-weight:600;}
 .dark .pt{color:#d1dce8;}
 .light .pt{color:#16191f;}
 .br{display:flex;gap:6px;}
-.bp{background:#ec7211;color:#fff;border:none;border-radius:3px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;}
-.bp:hover{background:#d4853a;}
+.bp{background:#FF9900;color:#fff;border:none;border-radius:3px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;}
+.bp:hover{background:#e68a00;}
 .bp:disabled{opacity:.6;cursor:not-allowed;}
 .bs{border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;}
 .dark .bs{background:#1b2b3f;color:#d1dce8;border:1px solid #2d4a6a;}
@@ -79,9 +82,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .light .fl{color:#545b64;}
 .fi{width:100%;border-radius:3px;padding:6px 9px;font-size:12px;outline:none;}
 .dark .fi{border:1px solid #2d4a6a;background:#0f1b2d;color:#d1dce8;}
-.dark .fi:focus{border-color:#5b9bd5;}
+.dark .fi:focus{border-color:#FF9900;}
 .light .fi{border:1px solid #aab7b8;background:#fff;color:#16191f;}
-.light .fi:focus{border-color:#0073bb;}
+.light .fi:focus{border-color:#FF9900;}
 .fi-ta{width:100%;border-radius:3px;padding:6px 9px;font-size:12px;outline:none;resize:vertical;min-height:80px;font-family:monospace;}
 .dark .fi-ta{border:1px solid #2d4a6a;background:#0f1b2d;color:#d1dce8;}
 .light .fi-ta{border:1px solid #aab7b8;background:#fff;color:#16191f;}
@@ -108,9 +111,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .fps{display:flex;gap:3px;}
 .fp{font-size:11px;padding:3px 8px;border-radius:3px;cursor:pointer;}
 .dark .fp{border:1px solid #2d4a6a;color:#8aa8c4;background:#1b2b3f;}
-.dark .fp.on{background:#ec7211;color:#fff;border-color:#ec7211;}
+.dark .fp.on{background:#FF9900;color:#fff;border-color:#FF9900;}
 .light .fp{border:1px solid #d5dbdb;color:#545b64;background:#fff;}
-.light .fp.on{background:#0073bb;color:#fff;border-color:#0073bb;}
+.light .fp.on{background:#FF9900;color:#fff;border-color:#FF9900;}
 .thead{display:grid;gap:6px;padding:6px 12px;border-bottom:1px solid;}
 .dark .thead{background:#0f1b2d;border-color:#2d4a6a;}
 .light .thead{background:#fafafa;border-color:#d5dbdb;}
@@ -124,14 +127,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .dark .dr:hover{background:#1a2535;}
 .light .dr:hover{background:#f8f8f8;}
 .dn{font-size:12px;font-weight:500;}
-.dark .dn{color:#5b9bd5;}
-.light .dn{color:#0073bb;}
+.dark .dn{color:#FF9900;}
+.light .dn{color:#e68a00;}
 .dm{font-size:10px;margin-top:2px;}
 .dark .dm{color:#4a6a88;}
 .light .dm{color:#879596;}
 .chip{font-size:10px;font-family:monospace;padding:2px 7px;border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
-.dark .chip{background:#1a2d42;color:#5b9bd5;border:1px solid #2d4a6a;}
-.light .chip{background:#e8f4ff;color:#0073bb;border:1px solid #aad4f0;}
+.dark .chip{background:#1a2d42;color:#FF9900;border:1px solid #2d4a6a;}
+.light .chip{background:#fff8ee;color:#e68a00;border:1px solid #ffd080;}
 .dark .chip.b{background:#1a2a0a;color:#7ec657;border-color:#3b6d11;}
 .light .chip.b{background:#f0fae6;color:#3b6d11;border-color:#c0dd97;}
 .dark .chip.f{background:#2d0f0f;color:#e05252;border-color:#a32d2d;}
@@ -149,10 +152,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .acts{display:flex;gap:3px;}
 .ib{width:26px;height:26px;border-radius:3px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;padding:0;}
 .dark .ib{border:1px solid #2d4a6a;background:#1b2b3f;color:#8aa8c4;}
-.dark .ib:hover{border-color:#5b9bd5;color:#5b9bd5;}
+.dark .ib:hover{border-color:#FF9900;color:#FF9900;}
 .dark .ib.del:hover{border-color:#e05252;color:#e05252;background:#2d0f0f;}
 .light .ib{border:1px solid #d5dbdb;background:#fff;color:#545b64;}
-.light .ib:hover{border-color:#0073bb;color:#0073bb;}
+.light .ib:hover{border-color:#FF9900;color:#FF9900;}
 .light .ib.del:hover{border-color:#b71c1c;color:#b71c1c;background:#ffebee;}
 .empty{padding:28px;text-align:center;font-size:12px;}
 .dark .empty{color:#4a6a88;}
@@ -176,8 +179,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .dark .sdesc{color:#4a6a88;}
 .light .sdesc{color:#879596;}
 .tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;margin:2px;}
-.dark .tag{background:#1a2d42;color:#5b9bd5;border:1px solid #2d4a6a;}
-.light .tag{background:#e8f4ff;color:#0073bb;border:1px solid #aad4f0;}
+.dark .tag{background:#2a1f00;color:#FF9900;border:1px solid #664000;}
+.light .tag{background:#fff8ee;color:#e68a00;border:1px solid #ffd080;}
 .divider{border:none;margin:12px 0;}
 .dark .divider{border-top:1px solid #2d4a6a;}
 .light .divider{border-top:1px solid #e8e8e8;}
@@ -186,7 +189,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 <body class="dark">
 
 <div class="top">
-  <div class="logo">
+  <div class="logo" id="logo-btn" title="Click to refresh">
     <div class="logo-sq">F</div>
     <span>FlashDeploy</span>
     <span style="color:#aab7b8;font-size:10px;font-weight:400;margin-left:4px;">Console</span>
@@ -218,7 +221,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
     <!-- DASHBOARD -->
     <div class="page on" id="page-dashboard">
-      <div class="bc"><a>FlashDeploy</a> &rsaquo; Dashboard</div>
+      <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Dashboard</div>
       <div class="ph">
         <div class="pt" id="dash-title">Deployments (0)</div>
         <div class="br">
@@ -259,7 +262,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
     <!-- DEPLOYMENTS -->
     <div class="page" id="page-deployments">
-      <div class="bc"><a>FlashDeploy</a> &rsaquo; Deployments</div>
+      <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Deployments</div>
       <div class="ph">
         <div class="pt">All Deployments</div>
         <div class="br">
@@ -287,7 +290,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
     <!-- NEW DEPLOY -->
     <div class="page" id="page-new-deploy">
-      <div class="bc"><a>FlashDeploy</a> &rsaquo; New Deployment</div>
+      <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; New Deployment</div>
       <div class="ph"><div class="pt">Deploy from GitHub</div></div>
       <div id="new-msg" class="msg"></div>
       <div class="card">
@@ -342,13 +345,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
     <!-- ANALYTICS -->
     <div class="page" id="page-analytics">
-      <div class="bc"><a>FlashDeploy</a> &rsaquo; Analytics</div>
+      <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Analytics</div>
       <div class="ph"><div class="pt">Analytics</div></div>
       <div class="stats">
         <div class="stat"><div class="sl">Total</div><div class="sv" id="an-total">0</div></div>
         <div class="stat"><div class="sl">Live</div><div class="sv" id="an-live" style="color:#3dba7a">0</div></div>
         <div class="stat"><div class="sl">Failed</div><div class="sv" id="an-failed" style="color:#e05252">0</div></div>
-        <div class="stat"><div class="sl">Success Rate</div><div class="sv" id="an-rate" style="color:#5b9bd5">0%</div></div>
+        <div class="stat"><div class="sl">Success Rate</div><div class="sv" id="an-rate" style="color:#FF9900">0%</div></div>
       </div>
       <div class="card">
         <div class="ct">Project Types</div>
@@ -362,7 +365,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
     <!-- ACTIVITY LOG -->
     <div class="page" id="page-logs-page">
-      <div class="bc"><a>FlashDeploy</a> &rsaquo; Activity Log</div>
+      <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Activity Log</div>
       <div class="ph">
         <div class="pt">Activity Log</div>
         <button class="bs" id="btn-refresh-logs">&#8635; Refresh</button>
@@ -384,7 +387,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
-      <div class="bc"><a>FlashDeploy</a> &rsaquo; Settings</div>
+      <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Settings</div>
       <div class="ph"><div class="pt">Settings</div></div>
       <div id="settings-msg" class="msg"></div>
       <div class="card">
@@ -442,6 +445,9 @@ document.getElementById('setting-branch').value=cfg.branch;
 document.getElementById('ip-display').textContent=cfg.ip;
 document.getElementById('inp-expiry').value=cfg.expiry;
 document.getElementById('inp-branch').value=cfg.branch;
+
+// Logo click = page refresh
+document.getElementById('logo-btn').onclick=function(){location.reload();};
 
 function setTheme(t){
   document.body.className=t;
