@@ -42,8 +42,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .bc a{cursor:pointer;text-decoration:none;}
 .dark .bc a{color:#FF9900;}
 .light .bc a{color:#e68a00;}
-.dark .bc a:hover{color:#ffb84d;}
-.light .bc a:hover{color:#cc7700;}
 .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .pt{font-size:15px;font-weight:600;}
 .dark .pt{color:#d1dce8;}
@@ -88,7 +86,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .fi-ta{width:100%;border-radius:3px;padding:6px 9px;font-size:12px;outline:none;resize:vertical;min-height:80px;font-family:monospace;}
 .dark .fi-ta{border:1px solid #2d4a6a;background:#0f1b2d;color:#d1dce8;}
 .light .fi-ta{border:1px solid #aab7b8;background:#fff;color:#16191f;}
-.hint{font-size:11px;margin-top:8px;}
+.hint{font-size:11px;margin-top:6px;}
 .dark .hint{color:#4a6a88;}
 .light .hint{color:#879596;}
 .msg{padding:8px 12px;border-radius:3px;font-size:12px;margin-bottom:12px;display:none;}
@@ -184,33 +182,107 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .divider{border:none;margin:12px 0;}
 .dark .divider{border-top:1px solid #2d4a6a;}
 .light .divider{border-top:1px solid #e8e8e8;}
-/* ENV Modal */
-.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px;}
+.dark .section-title{color:#4a6a88;}
+.light .section-title{color:#879596;}
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:1000;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
-.modal{border-radius:6px;padding:20px;width:440px;max-width:90vw;}
+.modal{border-radius:6px;padding:20px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;}
 .dark .modal{background:#161e2d;border:1px solid #2d4a6a;}
 .light .modal{background:#fff;border:1px solid #d5dbdb;}
 .modal-title{font-size:14px;font-weight:600;margin-bottom:4px;}
 .dark .modal-title{color:#d1dce8;}
 .light .modal-title{color:#16191f;}
-.modal-sub{font-size:11px;margin-bottom:12px;}
+.modal-sub{font-size:11px;margin-bottom:14px;}
 .dark .modal-sub{color:#4a6a88;}
 .light .modal-sub{color:#879596;}
-.modal-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+.modal-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid;}
+.dark .modal-tabs{border-color:#2d4a6a;}
+.light .modal-tabs{border-color:#e8e8e8;}
+.modal-tab{padding:6px 14px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.dark .modal-tab{color:#8aa8c4;}
+.light .modal-tab{color:#545b64;}
+.modal-tab.on{border-bottom-color:#FF9900;color:#FF9900;}
+.modal-tab-content{display:none;}
+.modal-tab-content.on{display:block;}
+.webhook-box{font-family:monospace;font-size:11px;padding:8px;border-radius:3px;word-break:break-all;margin-top:6px;}
+.dark .webhook-box{background:#060e18;border:1px solid #2d4a6a;color:#7ec657;}
+.light .webhook-box{background:#f8f8f8;border:1px solid #d5dbdb;color:#1b5e20;}
 </style>
 </head>
 <body class="dark">
 
-<!-- ENV Modal -->
-<div class="modal-overlay" id="env-modal">
+<!-- ENV / Settings Modal -->
+<div class="modal-overlay" id="dep-modal">
   <div class="modal">
-    <div class="modal-title">&#9881; Update Environment Variables</div>
-    <div class="modal-sub">Container will restart with new ENV. Existing ENV will be merged.</div>
-    <label class="fl">KEY=VALUE, one per line</label>
-    <textarea class="fi-ta" id="modal-env-input" placeholder="PORT=3000&#10;API_KEY=your_key&#10;DATABASE_URL=postgres://..." style="margin-top:6px;min-height:120px;"></textarea>
+    <div class="modal-title" id="modal-title">Deployment Settings</div>
+    <div class="modal-sub" id="modal-sub">Update settings for this deployment</div>
+    <div class="modal-tabs">
+      <div class="modal-tab on" data-tab="env">&#127811; ENV Variables</div>
+      <div class="modal-tab" data-tab="settings">&#9881; Settings</div>
+      <div class="modal-tab" data-tab="webhook">&#128279; Webhook</div>
+    </div>
+
+    <!-- ENV Tab -->
+    <div class="modal-tab-content on" id="tab-env">
+      <label class="fl">KEY=VALUE, one per line</label>
+      <textarea class="fi-ta" id="modal-env-input" placeholder="PORT=3000&#10;API_KEY=your_key&#10;DATABASE_URL=postgres://..." style="margin-top:6px;min-height:120px;"></textarea>
+      <div class="hint">Existing ENV will be merged. Container will restart.</div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="modal-tab-content" id="tab-settings">
+      <div class="fld" style="margin-bottom:10px;">
+        <label class="fl">Restart Policy</label>
+        <select class="fi" id="modal-restart">
+          <option value="unless-stopped">Unless Stopped (default)</option>
+          <option value="always">Always</option>
+          <option value="on-failure">On Failure</option>
+          <option value="never">Never</option>
+        </select>
+      </div>
+      <div class="fld" style="margin-bottom:10px;">
+        <label class="fl">Healthcheck Path</label>
+        <input type="text" class="fi" id="modal-health" placeholder="/health" />
+        <div class="hint">Endpoint to verify deployment is live (e.g. /health)</div>
+      </div>
+      <div class="fld" style="margin-bottom:10px;">
+        <label class="fl">Cron Schedule (optional)</label>
+        <input type="text" class="fi" id="modal-cron" placeholder="*/30 (every 30 mins)" />
+        <div class="hint">Auto redeploy interval e.g. */30 = every 30 minutes</div>
+      </div>
+      <div class="fld">
+        <label class="fl">Webhook Secret (optional)</label>
+        <input type="text" class="fi" id="modal-webhook-secret" placeholder="my-secret-key" />
+        <div class="hint">Used to verify GitHub webhook signatures</div>
+      </div>
+    </div>
+
+    <!-- Webhook Tab -->
+    <div class="modal-tab-content" id="tab-webhook">
+      <div class="slabel">Webhook URL</div>
+      <div class="sdesc" style="margin-top:4px;">Add this URL to your GitHub repo → Settings → Webhooks → Add webhook</div>
+      <div class="webhook-box" id="modal-webhook-url">-</div>
+      <div style="margin-top:10px;">
+        <button class="bs" onclick="copyWebhookUrl()">&#9064; Copy URL</button>
+      </div>
+      <hr class="divider">
+      <div class="slabel">GitHub Webhook Setup</div>
+      <div class="sdesc" style="margin-top:4px;line-height:1.8;">
+        1. Go to your repo → Settings → Webhooks<br>
+        2. Click "Add webhook"<br>
+        3. Paste the URL above<br>
+        4. Content type: application/json<br>
+        5. Event: "Just the push event"<br>
+        6. Click "Add webhook"
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="bs" id="modal-cancel">Cancel</button>
-      <button class="bp" id="modal-save">&#9881; Update & Restart</button>
+      <button class="bp" id="modal-save">Save & Apply</button>
     </div>
   </div>
 </div>
@@ -273,7 +345,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
             <button class="fp" data-f="failed">Failed</button>
           </div>
         </div>
-        <div class="thead" style="grid-template-columns:1fr 180px 90px 65px 100px;">
+        <div class="thead" style="grid-template-columns:1fr 200px 90px 65px 110px;">
           <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Actions</div>
         </div>
         <div id="dep-list"><div class="empty">No deployments yet.</div></div>
@@ -308,7 +380,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
             <button class="fp" data-f2="failed">Failed</button>
           </div>
         </div>
-        <div class="thead" style="grid-template-columns:1fr 180px 80px 65px 70px 100px;">
+        <div class="thead" style="grid-template-columns:1fr 180px 80px 65px 70px 110px;">
           <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Created</div><div class="thc">Actions</div>
         </div>
         <div id="dep-list2"><div class="empty">No deployments yet.</div></div>
@@ -320,14 +392,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; New Deployment</div>
       <div class="ph"><div class="pt">Deploy from GitHub</div></div>
       <div id="new-msg" class="msg"></div>
+
       <div class="card">
-        <div class="ct">Repository Details</div>
+        <div class="ct">Source</div>
         <div class="row">
           <div class="fld" style="flex:2;">
             <label class="fl">Repository URL *</label>
             <input type="text" class="fi" id="inp-url" placeholder="https://github.com/org/repo" />
           </div>
-          <div class="fld" style="max-width:130px;">
+          <div class="fld" style="max-width:120px;">
             <label class="fl">Branch</label>
             <select class="fi" id="inp-branch">
               <option value="main">main</option>
@@ -336,7 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
               <option value="staging">staging</option>
             </select>
           </div>
-          <div class="fld" style="max-width:130px;">
+          <div class="fld" style="max-width:120px;">
             <label class="fl">Expires in</label>
             <select class="fi" id="inp-expiry">
               <option value="7days">7 days</option>
@@ -345,19 +418,73 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
             </select>
           </div>
         </div>
-        <hr class="divider">
+      </div>
+
+      <div class="card">
+        <div class="ct">Build Configuration</div>
+        <div class="row" style="margin-bottom:10px;">
+          <div class="fld">
+            <label class="fl">Dockerfile Path (optional)</label>
+            <input type="text" class="fi" id="inp-dockerfile" placeholder="/Dockerfile.web" />
+            <div class="hint">Leave empty for auto-detection. E.g: /Dockerfile.web, /server/Dockerfile</div>
+          </div>
+          <div class="fld">
+            <label class="fl">Root Directory (optional)</label>
+            <input type="text" class="fi" id="inp-rootdir" placeholder="/server" />
+            <div class="hint">Subfolder to build from. E.g: /server, /backend</div>
+          </div>
+        </div>
+        <div class="fld">
+          <label class="fl">Custom Start Command (optional)</label>
+          <input type="text" class="fi" id="inp-startcmd" placeholder="node server/index.js" />
+          <div class="hint">Override default start command</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct">Deploy Settings</div>
+        <div class="row" style="margin-bottom:10px;">
+          <div class="fld">
+            <label class="fl">Restart Policy</label>
+            <select class="fi" id="inp-restart">
+              <option value="unless-stopped">Unless Stopped</option>
+              <option value="always">Always</option>
+              <option value="on-failure">On Failure</option>
+              <option value="never">Never</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label class="fl">Healthcheck Path (optional)</label>
+            <input type="text" class="fi" id="inp-health" placeholder="/health" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="fld">
+            <label class="fl">Webhook Secret (optional)</label>
+            <input type="text" class="fi" id="inp-webhook-secret" placeholder="my-secret-key" />
+            <div class="hint">Auto deploy on GitHub push</div>
+          </div>
+          <div class="fld">
+            <label class="fl">Cron Schedule (optional)</label>
+            <input type="text" class="fi" id="inp-cron" placeholder="*/30" />
+            <div class="hint">Auto redeploy every N minutes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="ct">Environment Variables (Optional)</div>
         <div class="fld">
           <label class="fl">KEY=VALUE, one per line</label>
           <textarea class="fi-ta" id="inp-env" placeholder="DATABASE_URL=postgres://...&#10;API_KEY=your_key"></textarea>
         </div>
-        <hr class="divider">
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="bp" id="btn-deploy" style="min-width:130px;">&#128640; Deploy Now</button>
-          <button class="bs" id="btn-cancel-deploy">Cancel</button>
-        </div>
-        <div class="hint">&#10003; Auto-detects Node.js, React, Python, static HTML &mdash; no Dockerfile needed.</div>
       </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="bp" id="btn-deploy" style="min-width:140px;">&#128640; Deploy Now</button>
+        <button class="bs" id="btn-cancel-deploy">Cancel</button>
+      </div>
+
       <div class="card">
         <div class="ct">Supported Types</div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:12px;">
@@ -462,7 +589,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </div>
 
 <script>
-var deps=[],filter='all',filter2='all',currentPage='dashboard',envModalDepId=null;
+var deps=[],filter='all',filter2='all',currentPage='dashboard',modalDepId=null,currentModalTab='env';
 var cfg={ip:localStorage.getItem('fd_ip')||'54.204.232.10',token:localStorage.getItem('fd_token')||'',expiry:localStorage.getItem('fd_expiry')||'30days',branch:localStorage.getItem('fd_branch')||'main'};
 
 document.getElementById('setting-ip').value=cfg.ip;
@@ -481,8 +608,7 @@ function setTheme(t){
   document.getElementById('btn-light').classList.toggle('on',t==='light');
   localStorage.setItem('fd_theme',t);
 }
-var savedTheme=localStorage.getItem('fd_theme')||'dark';
-setTheme(savedTheme);
+setTheme(localStorage.getItem('fd_theme')||'dark');
 
 function goTo(page){
   currentPage=page;
@@ -494,6 +620,17 @@ function goTo(page){
   if(page==='deployments')renderDeps2();
 }
 document.querySelectorAll('.si').forEach(function(el){el.onclick=function(){goTo(this.getAttribute('data-page'));};});
+
+// Modal tabs
+document.querySelectorAll('.modal-tab').forEach(function(tab){
+  tab.onclick=function(){
+    currentModalTab=this.getAttribute('data-tab');
+    document.querySelectorAll('.modal-tab').forEach(function(t){t.classList.remove('on');});
+    document.querySelectorAll('.modal-tab-content').forEach(function(c){c.classList.remove('on');});
+    this.classList.add('on');
+    document.getElementById('tab-'+currentModalTab).classList.add('on');
+  };
+});
 
 function showMsg(id,text,type,dur){
   var el=document.getElementById(id);if(!el)return;
@@ -514,41 +651,79 @@ function badgeHtml(s){var t=s==='live'?'Running':s==='building'?'Building':'Fail
 function actHtml(dep){
   var h='';
   if(dep.status==='live'&&dep.accessUrl){h+='<button class="ib" title="Open" onclick="openApp(\''+dep.accessUrl+'\')">&#8599;</button>';h+='<button class="ib" title="Copy URL" onclick="copyUrl(\''+dep.accessUrl+'\')">&#9064;</button>';}
-  h+='<button class="ib" title="Update ENV" onclick="showEnvModal(\''+dep.id+'\')">&#9881;</button>';
+  h+='<button class="ib" title="Settings & ENV" onclick="showDepModal(\''+dep.id+'\')">&#9881;</button>';
   h+='<button class="ib" title="Logs" onclick="viewLogs(\''+dep.id+'\')">&#8801;</button>';
   h+='<button class="ib del" title="Delete" onclick="delDep(\''+dep.id+'\')">&#10005;</button>';
   return h;
 }
 
-// ENV Modal
-function showEnvModal(id){
-  envModalDepId=id;
+// Show deployment modal
+function showDepModal(id){
+  modalDepId=id;
+  var dep=deps.find(function(d){return d.id===id;});
+  if(!dep)return;
+  document.getElementById('modal-title').textContent='Deployment: '+id;
+  document.getElementById('modal-sub').textContent=repoName(dep.repoUrl)+' &mdash; '+dep.branch;
   document.getElementById('modal-env-input').value='';
-  document.getElementById('env-modal').classList.add('show');
+  document.getElementById('modal-restart').value=dep.restartPolicy||'unless-stopped';
+  document.getElementById('modal-health').value=dep.healthcheckPath||'';
+  document.getElementById('modal-cron').value=dep.cronSchedule||'';
+  document.getElementById('modal-webhook-secret').value=dep.webhookSecret||'';
+  // Set webhook URL
+  var webhookUrl=window.location.origin+'/webhook/'+id;
+  document.getElementById('modal-webhook-url').textContent=webhookUrl;
+  // Reset to ENV tab
+  document.querySelectorAll('.modal-tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.modal-tab-content').forEach(function(c){c.classList.remove('on');});
+  document.querySelector('.modal-tab[data-tab="env"]').classList.add('on');
+  document.getElementById('tab-env').classList.add('on');
+  currentModalTab='env';
+  document.getElementById('dep-modal').classList.add('show');
 }
+
+function copyWebhookUrl(){
+  var url=document.getElementById('modal-webhook-url').textContent;
+  navigator.clipboard.writeText(url).then(function(){showMsg('dash-msg','Webhook URL copied!','ok');});
+}
+
 document.getElementById('modal-cancel').onclick=function(){
-  document.getElementById('env-modal').classList.remove('show');
-  envModalDepId=null;
+  document.getElementById('dep-modal').classList.remove('show');modalDepId=null;
 };
-document.getElementById('env-modal').onclick=function(e){
-  if(e.target===this){this.classList.remove('show');envModalDepId=null;}
+document.getElementById('dep-modal').onclick=function(e){
+  if(e.target===this){this.classList.remove('show');modalDepId=null;}
 };
+
 document.getElementById('modal-save').onclick=function(){
-  if(!envModalDepId)return;
-  var raw=document.getElementById('modal-env-input').value.trim();
-  var envVars={};
-  if(raw){raw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
-  var btn=this;btn.disabled=true;btn.textContent='Updating...';
-  fetch('/deployments/'+envModalDepId+'/env',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envVars:envVars})})
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.error)throw new Error(data.error);
-    document.getElementById('env-modal').classList.remove('show');
-    showMsg('dash-msg','ENV Updated & Container Restarted!','ok');
+  if(!modalDepId)return;
+  var btn=this;btn.disabled=true;btn.textContent='Saving...';
+
+  var promises=[];
+
+  // Save ENV if tab was env or if env has content
+  var envRaw=document.getElementById('modal-env-input').value.trim();
+  if(envRaw){
+    var envVars={};
+    envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});
+    promises.push(fetch('/deployments/'+modalDepId+'/env',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envVars:envVars})}).then(function(r){return r.json();}));
+  }
+
+  // Save settings
+  var settingsData={
+    restartPolicy:document.getElementById('modal-restart').value,
+    healthcheckPath:document.getElementById('modal-health').value,
+    cronSchedule:document.getElementById('modal-cron').value,
+    webhookSecret:document.getElementById('modal-webhook-secret').value
+  };
+  promises.push(fetch('/deployments/'+modalDepId+'/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settingsData)}).then(function(r){return r.json();}));
+
+  Promise.all(promises)
+  .then(function(){
+    document.getElementById('dep-modal').classList.remove('show');
+    showMsg('dash-msg','Settings saved!','ok');
     setTimeout(loadDeps,2000);
   })
   .catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');})
-  .finally(function(){btn.disabled=false;btn.innerHTML='&#9881; Update & Restart';envModalDepId=null;});
+  .finally(function(){btn.disabled=false;btn.textContent='Save & Apply';modalDepId=null;});
 };
 
 function loadDeps(){
@@ -574,8 +749,8 @@ function renderDash(){
   if(!filtered.length){document.getElementById('dep-list').innerHTML='<div class="empty">No deployments yet. Click "+ New deployment" to start!</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    html+='<div class="dr" style="grid-template-columns:1fr 180px 90px 65px 100px;">';
-    html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+'</div></div>';
+    html+='<div class="dr" style="grid-template-columns:1fr 200px 90px 65px 110px;">';
+    html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+(d.restartPolicy?' &middot; '+d.restartPolicy:'')+'</div></div>';
     html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
     html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
   });
@@ -588,7 +763,7 @@ function renderDeps2(){
   if(!filtered.length){document.getElementById('dep-list2').innerHTML='<div class="empty">No deployments found.</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    html+='<div class="dr" style="grid-template-columns:1fr 180px 80px 65px 70px 100px;">';
+    html+='<div class="dr" style="grid-template-columns:1fr 180px 80px 65px 70px 110px;">';
     html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.repoUrl||'')+'</div></div>';
     html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
     html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="exp">'+fmtDate(d.createdAt)+'</div>';
@@ -635,22 +810,47 @@ function delDep(id){
     showMsg('dash-msg','Deleted!','ok');loadDeps();
   }).catch(function(e){showMsg('dash-msg','Delete failed: '+e.message,'err');});
 }
+
 function doDeploy(){
   var url=document.getElementById('inp-url').value.trim();
   var branch=document.getElementById('inp-branch').value;
   var expiry=document.getElementById('inp-expiry').value;
   var envRaw=document.getElementById('inp-env').value.trim();
+  var dockerfilePath=document.getElementById('inp-dockerfile').value.trim();
+  var rootDirectory=document.getElementById('inp-rootdir').value.trim();
+  var startCommand=document.getElementById('inp-startcmd').value.trim();
+  var healthcheckPath=document.getElementById('inp-health').value.trim();
+  var restartPolicy=document.getElementById('inp-restart').value;
+  var webhookSecret=document.getElementById('inp-webhook-secret').value.trim();
+  var cronSchedule=document.getElementById('inp-cron').value.trim();
+
   if(!url){showMsg('new-msg','Please enter a GitHub repository URL','err');return;}
   var envVars={};
   if(envRaw){envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
+
   var btn=document.getElementById('btn-deploy');btn.disabled=true;btn.textContent='Deploying...';
-  showMsg('new-msg','Starting...','inf',0);
-  fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repoUrl:url,branch:branch,expiry:expiry,envVars:envVars,token:cfg.token})})
+  showMsg('new-msg','Starting deployment...','inf',0);
+
+  fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    repoUrl:url,branch:branch,expiry:expiry,envVars:envVars,token:cfg.token,
+    dockerfilePath:dockerfilePath,rootDirectory:rootDirectory,startCommand:startCommand,
+    healthcheckPath:healthcheckPath,restartPolicy:restartPolicy,
+    webhookSecret:webhookSecret,cronSchedule:cronSchedule
+  })})
   .then(function(r){return r.json();})
   .then(function(data){
     if(data.error)throw new Error(data.error);
-    showMsg('new-msg','Deployment started! ID: '+data.id,'ok');
-    document.getElementById('inp-url').value='';document.getElementById('inp-env').value='';
+    var msg='Deployment started! ID: '+data.id;
+    if(data.webhookUrl)msg+=' | Webhook: '+window.location.origin+data.webhookUrl;
+    showMsg('new-msg',msg,'ok');
+    document.getElementById('inp-url').value='';
+    document.getElementById('inp-env').value='';
+    document.getElementById('inp-dockerfile').value='';
+    document.getElementById('inp-rootdir').value='';
+    document.getElementById('inp-startcmd').value='';
+    document.getElementById('inp-health').value='';
+    document.getElementById('inp-webhook-secret').value='';
+    document.getElementById('inp-cron').value='';
     setTimeout(function(){loadDeps();goTo('dashboard');},2000);
   })
   .catch(function(e){showMsg('new-msg','Error: '+e.message,'err');})
