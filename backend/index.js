@@ -201,7 +201,7 @@ async function deployWithCompose(id, repoPath, composePath, envVars, restartPoli
   // Write env file for compose
   const envLines = Object.entries(envVars).map(([k,v]) => k + '=' + v);
   if (envLines.length > 0) {
-    fs.writeFileSync(path.join(repoPath, '.env.flash'), envLines.join('\n'));
+    fs.writeFileSync(path.join(repoPath, '.env'), envLines.join('\n'));
   }
 
   // Get services from compose
@@ -377,7 +377,7 @@ app.post('/deployments/:id/env', async (req, res) => {
 
       if (fs.existsSync(composePath)) {
         const envLines = Object.entries(envVars).map(([k,v]) => k + '=' + v);
-        fs.writeFileSync(path.join(repoPath, '.env.flash'), envLines.join('\n'));
+        fs.writeFileSync(path.join(repoPath, '.env'), envLines.join('\n'));
         const projectName = 'flash' + dep.id;
         execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d', { cwd: repoPath, stdio: 'pipe' });
         await addLog(dep.id, 'ENV updated for compose services');
