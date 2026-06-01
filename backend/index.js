@@ -54,20 +54,15 @@ async function initDB() {
       restart_policy VARCHAR(50),
       webhook_secret VARCHAR(100),
       cron_schedule VARCHAR(100),
-      compose_file VARCHAR(200)
+      compose_file VARCHAR(200),
+      env_vars JSONB
     )
   `);
   const cols = [
-    'compose_file VARCHAR(200)',
-    'services JSONB',
-    'container_ids JSONB',
-    'dockerfile_path VARCHAR(200)',
-    'root_directory VARCHAR(200)',
-    'start_command TEXT',
-    'healthcheck_path VARCHAR(200)',
-    'restart_policy VARCHAR(50)',
-    'webhook_secret VARCHAR(100)',
-    'cron_schedule VARCHAR(100)'
+    'compose_file VARCHAR(200)', 'services JSONB', 'container_ids JSONB',
+    'dockerfile_path VARCHAR(200)', 'root_directory VARCHAR(200)', 'start_command TEXT',
+    'healthcheck_path VARCHAR(200)', 'restart_policy VARCHAR(50)', 'webhook_secret VARCHAR(100)',
+    'cron_schedule VARCHAR(100)', 'env_vars JSONB'
   ];
   for (const col of cols) {
     await pool.query(`ALTER TABLE deployments ADD COLUMN IF NOT EXISTS ${col}`).catch(()=>{});
@@ -148,7 +143,8 @@ function formatDep(row) {
     restartPolicy: row.restart_policy || 'unless-stopped',
     webhookSecret: row.webhook_secret || '',
     cronSchedule: row.cron_schedule || '',
-    composeFile: row.compose_file || ''
+    composeFile: row.compose_file || '',
+    envVars: row.env_vars || {}
   };
 }
 
@@ -183,7 +179,6 @@ function getRestartPolicy(policy) {
   return map[policy] || map['unless-stopped'];
 }
 
-// Check if docker-compose.yml exists in repo
 function hasComposeFile(repoPath, composeFile) {
   const composePath = composeFile
     ? path.join(repoPath, composeFile.replace(/^\//, ''))
@@ -191,80 +186,84 @@ function hasComposeFile(repoPath, composeFile) {
   return fs.existsSync(composePath) ? composePath : null;
 }
 
-// Deploy using docker-compose
+// Get all running containers for a compose project
+async function getComposeContainers(projectName) {
+  try {
+    const containers = await docker.listContainers({ all: false });
+    return containers.filter(c => {
+      const labels = c.Labels || {};
+      return labels['com.docker.compose.project'] === projectName;
+    });
+  } catch(e) { return []; }
+}
+
 async function deployWithCompose(id, repoPath, composePath, envVars, restartPolicy) {
   const serverIP = process.env.SERVER_IP || '34.201.132.220';
-  const ipDash = serverIP.replace(/\./g, '-');
+  const projectName = 'flash' + id;
 
   await addLog(id, 'Detected docker-compose.yml - using compose deployment');
 
-  // Write env file for compose
-  const envLines = Object.entries(envVars).map(([k,v]) => k + '=' + v);
-  if (envLines.length > 0) {
+  // Write env file
+  if (envVars && Object.keys(envVars).length > 0) {
+    const envLines = Object.entries(envVars).map(([k,v]) => k + '=' + v);
     fs.writeFileSync(path.join(repoPath, '.env'), envLines.join('\n'));
+    await addLog(id, 'ENV file written with ' + Object.keys(envVars).length + ' variables');
   }
 
-  // Get services from compose
+  // Get service names
   const composeContent = fs.readFileSync(composePath, 'utf8');
   const serviceNames = [];
-  const serviceMatch = composeContent.match(/^  (\w+):/gm);
-  if (serviceMatch) {
-    serviceMatch.forEach(m => {
-      const name = m.trim().replace(':', '');
+  const lines = composeContent.split('\n');
+  let inServices = false;
+  for (const line of lines) {
+    if (line.trim() === 'services:') { inServices = true; continue; }
+    if (inServices && line.match(/^  \w+:/) && !line.match(/^\s{4}/)) {
+      const name = line.trim().replace(':', '');
       if (!['volumes', 'networks'].includes(name)) serviceNames.push(name);
-    });
+    }
+    if (inServices && line.match(/^(volumes|networks):/) && !line.match(/^  /)) inServices = false;
   }
 
   await addLog(id, 'Services found: ' + serviceNames.join(', '));
 
-  // Build compose with unique project name
-  const projectName = 'flash' + id;
   execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' build', {
     cwd: repoPath, stdio: 'pipe', timeout: 600000
   });
   await addLog(id, 'Compose build successful');
 
-  // Start compose
   execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --force-recreate', {
     cwd: repoPath, stdio: 'pipe', timeout: 120000
   });
   await addLog(id, 'Compose services started');
 
-  // Get running containers and their ports
+  // Wait a bit for containers to start
+  await new Promise(r => setTimeout(r, 3000));
+
+  // Get containers via docker API using compose labels
+  const runningContainers = await getComposeContainers(projectName);
+
   const services = {};
   const containerIds = {};
   let mainUrl = '';
 
-  for (const svc of serviceNames) {
-    try {
-      const containerName = projectName + '_' + svc + '_1';
-      const altName = projectName + '-' + svc + '-1';
+  for (const c of runningContainers) {
+    const svcName = (c.Labels || {})['com.docker.compose.service'] || 'unknown';
+    containerIds[svcName] = c.Id;
 
-      let containerInfo = null;
-      try {
-        containerInfo = await docker.getContainer(containerName).inspect();
-      } catch(e) {
-        try {
-          containerInfo = await docker.getContainer(altName).inspect();
-        } catch(e2) {}
+    const ports = c.Ports || [];
+    for (const p of ports) {
+      if (p.PublicPort && p.IP === '0.0.0.0') {
+        const url = buildAccessUrl(serverIP, p.PublicPort);
+        services[svcName] = { url, hostPort: p.PublicPort, intPort: p.PrivatePort };
+        if (!mainUrl) mainUrl = url;
+        await addLog(id, svcName + ' running at ' + url + ' (port ' + p.PublicPort + ')');
+        break;
       }
-
-      if (containerInfo) {
-        containerIds[svc] = containerInfo.Id;
-        const ports = containerInfo.NetworkSettings.Ports;
-        for (const [intPort, bindings] of Object.entries(ports)) {
-          if (bindings && bindings.length > 0) {
-            const hostPort = bindings[0].HostPort;
-            const url = buildAccessUrl(serverIP, hostPort);
-            services[svc] = { url, hostPort, intPort };
-            if (!mainUrl) mainUrl = url;
-            await addLog(id, svc + ' running at ' + url);
-          }
-        }
-      }
-    } catch(e) {
-      await addLog(id, 'Could not get info for service: ' + svc);
     }
+  }
+
+  if (!mainUrl && runningContainers.length > 0) {
+    await addLog(id, 'Containers started but no public ports found - check docker-compose.yml ports config');
   }
 
   return { services, containerIds, mainUrl };
@@ -276,13 +275,11 @@ async function cleanupExpired() {
     const r = await pool.query('SELECT * FROM deployments WHERE expires_at < $1', [now]);
     for (const row of r.rows) {
       try {
-        // Stop single container
         if (row.container_id) {
           const c = docker.getContainer(row.container_id);
           await c.stop().catch(() => {});
           await c.remove().catch(() => {});
         }
-        // Stop compose containers
         if (row.container_ids) {
           for (const [svc, cid] of Object.entries(row.container_ids)) {
             const c = docker.getContainer(cid);
@@ -312,7 +309,6 @@ function startCronJob(dep) {
   if (match) {
     const mins = parseInt(match[1]);
     cronJobs[dep.id] = setInterval(async () => {
-      console.log('[CRON] Redeploying ' + dep.id);
       await addLog(dep.id, 'Cron triggered redeploy');
     }, mins * 60 * 1000);
   }
@@ -343,7 +339,18 @@ app.get('/deployments/:id/logs', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Webhook - GitHub push triggers redeploy
+// Get container ENV for a deployment
+app.get('/deployments/:id/env', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM deployments WHERE id=$1', [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const dep = r.rows[0];
+    const savedEnv = dep.env_vars || {};
+    res.json({ envVars: savedEnv });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Webhook
 app.post('/webhook/:id', express.raw({ type: '*/*' }), async (req, res) => {
   try {
     const r = await pool.query('SELECT * FROM deployments WHERE id=$1', [req.params.id]);
@@ -356,7 +363,7 @@ app.post('/webhook/:id', express.raw({ type: '*/*' }), async (req, res) => {
     }
     res.json({ success: true, message: 'Webhook received!' });
     await addLog(dep.id, 'Webhook triggered - redeploying...');
-    await runDeploy(dep.id, dep.repo_url, dep.branch, dep.webhook_secret || '', {}, dep.dockerfile_path, dep.root_directory, dep.start_command, dep.healthcheck_path, dep.restart_policy, dep.compose_file, true);
+    await runDeploy(dep.id, dep.repo_url, dep.branch, dep.webhook_secret || '', dep.env_vars || {}, dep.dockerfile_path, dep.root_directory, dep.start_command, dep.healthcheck_path, dep.restart_policy, dep.compose_file, true);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -368,21 +375,28 @@ app.post('/deployments/:id/env', async (req, res) => {
     if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
     const dep = r.rows[0];
 
-    // Handle compose deployment
-    if (dep.container_ids && Object.keys(dep.container_ids).length > 0) {
-      const repoPath = path.join(REPOS_DIR, dep.id);
-      const composePath = dep.compose_file
-        ? path.join(repoPath, dep.compose_file.replace(/^\//, ''))
-        : path.join(repoPath, 'docker-compose.yml');
+    // Merge with saved env
+    const savedEnv = dep.env_vars || {};
+    const mergedEnv = Object.assign({}, savedEnv, envVars);
 
-      if (fs.existsSync(composePath)) {
-        const envLines = Object.entries(envVars).map(([k,v]) => k + '=' + v);
-        fs.writeFileSync(path.join(repoPath, '.env'), envLines.join('\n'));
-        const projectName = 'flash' + dep.id;
-        execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --force-recreate', { cwd: repoPath, stdio: 'pipe' });
-        await addLog(dep.id, 'ENV updated for compose services');
-        return res.json({ success: true, message: 'ENV updated!' });
-      }
+    // Save merged ENV to DB
+    await pool.query('UPDATE deployments SET env_vars=$1 WHERE id=$2', [JSON.stringify(mergedEnv), dep.id]);
+
+    // Handle compose deployment
+    const repoPath = path.join(REPOS_DIR, dep.id);
+    const composePath = dep.compose_file
+      ? path.join(repoPath, dep.compose_file.replace(/^\//, ''))
+      : path.join(repoPath, 'docker-compose.yml');
+
+    if (fs.existsSync(composePath)) {
+      const envLines = Object.entries(mergedEnv).map(([k,v]) => k + '=' + v);
+      fs.writeFileSync(path.join(repoPath, '.env'), envLines.join('\n'));
+      const projectName = 'flash' + dep.id;
+      execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --force-recreate', {
+        cwd: repoPath, stdio: 'pipe', timeout: 120000
+      });
+      await addLog(dep.id, 'ENV updated and compose services restarted');
+      return res.json({ success: true, message: 'ENV updated and restarted!' });
     }
 
     // Single container
@@ -390,8 +404,10 @@ app.post('/deployments/:id/env', async (req, res) => {
     const c = docker.getContainer(dep.container_id);
     const info = await c.inspect();
     const existingEnv = info.Config.Env || [];
-    const newEnvEntries = Object.entries(envVars).map(([k,v]) => k + '=' + v);
-    const mergedEnv = [...existingEnv.filter(e => !Object.keys(envVars).includes(e.split('=')[0])), ...newEnvEntries];
+    const newEnvEntries = Object.entries(mergedEnv).map(([k,v]) => k + '=' + v);
+    const filteredExisting = existingEnv.filter(e => !Object.keys(mergedEnv).includes(e.split('=')[0]));
+    const finalEnv = [...filteredExisting, ...newEnvEntries];
+
     await c.stop().catch(() => {});
     await c.remove().catch(() => {});
     const imgName = 'flash-' + dep.id;
@@ -401,14 +417,14 @@ app.post('/deployments/:id/env', async (req, res) => {
     const exposedPorts = {};
     exposedPorts[intPort + '/tcp'] = {};
     const container = await docker.createContainer({
-      Image: imgName, name: 'flash-' + dep.id, Env: mergedEnv,
+      Image: imgName, name: 'flash-' + dep.id, Env: finalEnv,
       ExposedPorts: exposedPorts,
       HostConfig: { PortBindings: portBindings, Memory: 512*1024*1024, NanoCpus: 1000000000, RestartPolicy: getRestartPolicy(dep.restart_policy) }
     });
     await container.start();
     await pool.query('UPDATE deployments SET container_id=$1, status=$2 WHERE id=$3', [container.id, 'live', dep.id]);
     await addLog(dep.id, 'ENV updated and container restarted');
-    res.json({ success: true, message: 'ENV updated!' });
+    res.json({ success: true, message: 'ENV updated and restarted!' });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -435,24 +451,24 @@ app.delete('/deployments/:id', async (req, res) => {
     if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
     const dep = r.rows[0];
 
-    // Stop single container
     if (dep.container_id) {
       const c = docker.getContainer(dep.container_id);
       await c.stop().catch(() => {});
       await c.remove().catch(() => {});
     }
 
-    // Stop compose containers
+    const repoPath = path.join(REPOS_DIR, dep.id);
+    const composePath = dep.compose_file
+      ? path.join(repoPath, dep.compose_file.replace(/^\//, ''))
+      : path.join(repoPath, 'docker-compose.yml');
+
+    if (fs.existsSync(composePath)) {
+      try {
+        execSync('docker-compose -p flash' + dep.id + ' -f ' + composePath + ' down', { cwd: repoPath, stdio: 'pipe' });
+      } catch(e) {}
+    }
+
     if (dep.container_ids) {
-      const repoPath = path.join(REPOS_DIR, dep.id);
-      const composePath = dep.compose_file
-        ? path.join(repoPath, dep.compose_file.replace(/^\//, ''))
-        : path.join(repoPath, 'docker-compose.yml');
-      if (fs.existsSync(composePath)) {
-        try {
-          execSync('docker-compose -p flash' + dep.id + ' -f ' + composePath + ' down', { cwd: repoPath, stdio: 'pipe' });
-        } catch(e) {}
-      }
       for (const [svc, cid] of Object.entries(dep.container_ids)) {
         const c = docker.getContainer(cid);
         await c.stop().catch(() => {});
@@ -460,8 +476,7 @@ app.delete('/deployments/:id', async (req, res) => {
       }
     }
 
-    const rp = path.join(REPOS_DIR, req.params.id);
-    if (fs.existsSync(rp)) fs.rmSync(rp, { recursive: true });
+    if (fs.existsSync(repoPath)) fs.rmSync(repoPath, { recursive: true });
     await pool.query('DELETE FROM deployments WHERE id=$1', [req.params.id]);
     if (cronJobs[req.params.id]) { clearInterval(cronJobs[req.params.id]); delete cronJobs[req.params.id]; }
     res.json({ success: true });
@@ -476,32 +491,31 @@ async function runDeploy(id, repoUrl, branch, token, envVars, dockerfilePath, ro
     const r = await pool.query('SELECT host_port FROM deployments WHERE id=$1', [id]);
     const hostPort = r.rows[0].host_port;
 
-    // Clone or pull
     if (!isRedeploy || !fs.existsSync(repoPath)) {
       const cloneUrl = buildCloneUrl(repoUrl, token);
       await addLog(id, 'Cloning ' + repoUrl + ' (branch: ' + branch + ')');
       await simpleGit({ binary: '/usr/bin/git' }).clone(cloneUrl, repoPath, ['--branch', branch, '--depth', '1']);
       await addLog(id, 'Clone successful');
     } else {
-      await addLog(id, 'Pulling latest changes...');
       const cloneUrl = buildCloneUrl(repoUrl, token);
       if (fs.existsSync(repoPath)) fs.rmSync(repoPath, { recursive: true });
       await simpleGit({ binary: '/usr/bin/git' }).clone(cloneUrl, repoPath, ['--branch', branch, '--depth', '1']);
+      await addLog(id, 'Re-cloned for redeploy');
     }
 
-    // Check for docker-compose
+    // Check for docker-compose (only if no dockerfile specified)
     const composePath = !dockerfilePath && hasComposeFile(repoPath, composeFile);
     if (composePath) {
       const { services, containerIds, mainUrl } = await deployWithCompose(id, repoPath, composePath, envVars || {}, restartPolicy);
       await pool.query(
-        'UPDATE deployments SET status=$1, container_ids=$2, services=$3, access_url=$4, project_type=$5 WHERE id=$6',
-        ['live', JSON.stringify(containerIds), JSON.stringify(services), mainUrl, 'compose', id]
+        'UPDATE deployments SET status=$1, container_ids=$2, services=$3, access_url=$4, project_type=$5, env_vars=$6 WHERE id=$7',
+        ['live', JSON.stringify(containerIds), JSON.stringify(services), mainUrl || '', 'compose', JSON.stringify(envVars || {}), id]
       );
-      await addLog(id, 'LIVE at ' + mainUrl);
+      await addLog(id, 'LIVE at ' + (mainUrl || '(check docker-compose ports config)'));
       return;
     }
 
-    // Single container deploy
+    // Single container
     const buildPath = rootDirectory ? path.join(repoPath, rootDirectory.replace(/^\//, '')) : repoPath;
     if (!fs.existsSync(buildPath)) throw new Error('Root directory not found: ' + rootDirectory);
 
@@ -527,7 +541,6 @@ async function runDeploy(id, repoUrl, branch, token, envVars, dockerfilePath, ro
     execSync('docker build ' + dfFlag + ' -t ' + imgName + ' .', { cwd: buildPath, stdio: 'pipe', timeout: 300000 });
     await addLog(id, 'Docker image built successfully');
 
-    // Stop old container if redeploy
     if (isRedeploy) {
       const old = await pool.query('SELECT container_id FROM deployments WHERE id=$1', [id]);
       if (old.rows[0] && old.rows[0].container_id) {
@@ -555,20 +568,19 @@ async function runDeploy(id, repoUrl, branch, token, envVars, dockerfilePath, ro
     const serverIP = process.env.SERVER_IP || '34.201.132.220';
     const accessUrl = buildAccessUrl(serverIP, hostPort);
 
-    // Healthcheck
     if (healthcheckPath) {
-      await addLog(id, 'Running healthcheck on ' + healthcheckPath + '...');
+      await addLog(id, 'Running healthcheck...');
       let healthy = false;
       for (let i = 0; i < 10; i++) {
         await new Promise(r => setTimeout(r, 3000));
         try { execSync('curl -sf ' + accessUrl + healthcheckPath, { timeout: 5000 }); healthy = true; break; } catch(e) {}
       }
-      await addLog(id, healthy ? 'Healthcheck passed!' : 'WARNING: Healthcheck failed but container is running');
+      await addLog(id, healthy ? 'Healthcheck passed!' : 'WARNING: Healthcheck failed');
     }
 
     await pool.query(
-      'UPDATE deployments SET status=$1, container_id=$2, project_type=$3, access_url=$4 WHERE id=$5',
-      ['live', container.id, type, accessUrl, id]
+      'UPDATE deployments SET status=$1, container_id=$2, project_type=$3, access_url=$4, env_vars=$5 WHERE id=$6',
+      ['live', container.id, type, accessUrl, JSON.stringify(envVars || {}), id]
     );
     await addLog(id, 'LIVE at ' + accessUrl);
 
@@ -597,11 +609,11 @@ app.post('/deploy', async (req, res) => {
     `INSERT INTO deployments
      (id, repo_url, branch, status, host_port, expiry, logs, created_at, expires_at,
       dockerfile_path, root_directory, start_command, healthcheck_path, restart_policy,
-      webhook_secret, cron_schedule, compose_file)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+      webhook_secret, cron_schedule, compose_file, env_vars)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
     [id, repoUrl, branch, 'building', hostPort, expiry, [], now, now + expiryMs,
      dockerfilePath, rootDirectory, startCommand, healthcheckPath, restartPolicy,
-     webhookSecret, cronSchedule, composeFile]
+     webhookSecret, cronSchedule, composeFile, JSON.stringify(envVars)]
   );
 
   res.json({ id, status: 'building', message: 'Deployment started!', webhookUrl: '/webhook/' + id });
