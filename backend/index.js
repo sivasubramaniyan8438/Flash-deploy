@@ -165,8 +165,7 @@ function getIntPort(projectType) {
 }
 
 function buildAccessUrl(serverIP, hostPort) {
-  const ipDash = serverIP.replace(/\./g, '-');
-  return 'http://' + hostPort + '.' + ipDash + '.nip.io';
+  return 'http://' + serverIP + ':' + hostPort;
 }
 
 function getRestartPolicy(policy) {
