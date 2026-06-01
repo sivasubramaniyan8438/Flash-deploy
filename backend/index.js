@@ -1,4 +1,3 @@
-cat > /tmp/index.js << 'EOF'
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -127,7 +126,6 @@ function formatDep(row) {
   };
 }
 
-// Inject token into GitHub URL
 function buildCloneUrl(repoUrl, token) {
   if (!token) return repoUrl;
   try {
@@ -138,6 +136,12 @@ function buildCloneUrl(repoUrl, token) {
   } catch(e) {
     return repoUrl;
   }
+}
+
+function getIntPort(projectType) {
+  if (projectType === 'react' || projectType === 'static') return '80';
+  if (projectType === 'python') return '8000';
+  return '3000';
 }
 
 async function cleanupExpired() {
@@ -190,6 +194,60 @@ app.get('/deployments/:id/logs', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Update ENV and restart container
+app.post('/deployments/:id/env', async (req, res) => {
+  try {
+    const { envVars = {} } = req.body;
+    const r = await pool.query('SELECT * FROM deployments WHERE id=$1', [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const dep = r.rows[0];
+    if (!dep.container_id) return res.status(400).json({ error: 'No container found' });
+
+    const c = docker.getContainer(dep.container_id);
+    const info = await c.inspect();
+    const existingEnv = info.Config.Env || [];
+
+    const newEnvEntries = Object.entries(envVars).map(([k,v]) => k + '=' + v);
+    const mergedEnv = [
+      ...existingEnv.filter(e => {
+        const key = e.split('=')[0];
+        return !Object.keys(envVars).includes(key);
+      }),
+      ...newEnvEntries
+    ];
+
+    await c.stop().catch(() => {});
+    await c.remove().catch(() => {});
+
+    const imgName = 'flash-' + dep.id;
+    const intPort = getIntPort(dep.project_type);
+    const portBindings = {};
+    portBindings[intPort + '/tcp'] = [{ HostPort: String(dep.host_port) }];
+    const exposedPorts = {};
+    exposedPorts[intPort + '/tcp'] = {};
+
+    const container = await docker.createContainer({
+      Image: imgName,
+      name: 'flash-' + dep.id,
+      Env: mergedEnv,
+      ExposedPorts: exposedPorts,
+      HostConfig: {
+        PortBindings: portBindings,
+        Memory: 512 * 1024 * 1024,
+        NanoCpus: 1000000000,
+        RestartPolicy: { Name: 'unless-stopped' }
+      }
+    });
+
+    await container.start();
+    await pool.query('UPDATE deployments SET container_id=$1, status=$2 WHERE id=$3', [container.id, 'live', dep.id]);
+    await addLog(dep.id, 'ENV updated and container restarted');
+    res.json({ success: true, message: 'ENV updated and restarted!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.delete('/deployments/:id', async (req, res) => {
   try {
     const r = await pool.query('SELECT * FROM deployments WHERE id=$1', [req.params.id]);
@@ -207,7 +265,6 @@ app.delete('/deployments/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Create new deployment - token support added
 app.post('/deploy', async (req, res) => {
   const { repoUrl, branch = 'main', expiry = '30days', token = '', envVars = {} } = req.body;
   if (!repoUrl) return res.status(400).json({ error: 'repoUrl is required' });
@@ -241,7 +298,6 @@ app.post('/deploy', async (req, res) => {
       const dfFlag = type !== 'docker' ? '-f Dockerfile.flash' : '';
       generateDockerfile(type, repoPath);
 
-      // Build env args
       const envArgs = Object.entries(envVars).map(([k,v]) => '--build-arg ' + k + '=' + v).join(' ');
 
       await addLog(id, 'Building Docker image...');
@@ -250,14 +306,12 @@ app.post('/deploy', async (req, res) => {
       });
       await addLog(id, 'Docker image built successfully');
 
-      const intPort = (type === 'react' || type === 'static') ? '80' :
-                      type === 'python' ? '8000' : '3000';
+      const intPort = getIntPort(type);
       const portBindings = {};
       portBindings[intPort + '/tcp'] = [{ HostPort: String(hostPort) }];
       const exposedPorts = {};
       exposedPorts[intPort + '/tcp'] = {};
 
-      // Build env array for container
       const envArray = ['PORT=' + hostPort, ...Object.entries(envVars).map(([k,v]) => k + '=' + v)];
 
       const container = await docker.createContainer({
@@ -299,5 +353,3 @@ const PORT = parseInt(process.env.PORT) || 5000;
 initDB()
   .then(() => app.listen(PORT, () => console.log('[OK] FlashDeploy backend on port ' + PORT)))
   .catch(e => { console.error('[FATAL]', e.message); process.exit(1); });
-EOF
-docker cp /tmp/index.js flashdeploy-backend:/app/index.js && docker restart flashdeploy-backend && echo "Done!"
