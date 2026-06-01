@@ -57,7 +57,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .light .bs:hover{background:#f5f5f5;}
 .bdanger{background:#a32d2d;color:#fff;border:none;border-radius:3px;padding:5px 12px;font-size:12px;cursor:pointer;}
 .bdanger:hover{background:#c0392b;}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
 .stat{border-radius:3px;padding:10px 14px;}
 .dark .stat{background:#161e2d;border:1px solid #2d4a6a;}
 .light .stat{background:#fff;border:1px solid #d5dbdb;}
@@ -67,6 +67,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .sv{font-size:20px;font-weight:600;}
 .dark .sv{color:#d1dce8;}
 .light .sv{color:#16191f;}
+/* Railway style cards */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px;}
+.dep-card{border-radius:6px;padding:16px;cursor:pointer;transition:border-color 0.15s;}
+.dark .dep-card{background:#161e2d;border:1px solid #2d4a6a;}
+.light .dep-card{background:#fff;border:1px solid #d5dbdb;}
+.dark .dep-card:hover{border-color:#FF9900;}
+.light .dep-card:hover{border-color:#FF9900;}
+.card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.card-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.dark .card-icon{background:#1a2d42;}
+.light .card-icon{background:#f0f4f8;}
+.card-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dark .card-name{color:#d1dce8;}
+.light .card-name{color:#16191f;}
+.card-repo{font-size:10px;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dark .card-repo{color:#4a6a88;}
+.light .card-repo{color:#879596;}
+.card-status{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.status-dot.live{background:#3dba7a;}
+.status-dot.building{background:#FF9900;animation:pulse 1.5s infinite;}
+.status-dot.failed{background:#e05252;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.status-text{font-size:11px;font-weight:500;}
+.dark .status-text.live{color:#3dba7a;}
+.light .status-text.live{color:#1b5e20;}
+.dark .status-text.building{color:#FF9900;}
+.light .status-text.building{color:#e68a00;}
+.dark .status-text.failed{color:#e05252;}
+.light .status-text.failed{color:#b71c1c;}
+.card-url{font-size:10px;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dark .card-url{color:#5b9bd5;}
+.light .card-url{color:#0073bb;}
+.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid;}
+.dark .card-footer{border-color:#1a2d45;}
+.light .card-footer{border-color:#f0f0f0;}
+.card-meta{font-size:10px;}
+.dark .card-meta{color:#4a6a88;}
+.light .card-meta{color:#879596;}
+.card-actions{display:flex;gap:4px;}
+/* Service cards for compose */
+.svc-cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.svc-card{border-radius:4px;padding:6px 10px;font-size:10px;display:flex;align-items:center;gap:5px;}
+.dark .svc-card{background:#1a2d42;border:1px solid #2d4a6a;}
+.light .svc-card{background:#f0f4f8;border:1px solid #d5dbdb;}
+.svc-name{font-weight:600;}
+.dark .svc-name{color:#d1dce8;}
+.light .svc-name{color:#16191f;}
+/* Card view toggle */
+.view-toggle{display:flex;gap:4px;margin-bottom:12px;}
+.vt{padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px;border:none;}
+.dark .vt{background:#1b2b3f;color:#8aa8c4;border:1px solid #2d4a6a;}
+.dark .vt.on{background:#FF9900;color:#fff;border-color:#FF9900;}
+.light .vt{background:#fff;color:#545b64;border:1px solid #d5dbdb;}
+.light .vt.on{background:#FF9900;color:#fff;border-color:#FF9900;}
 .card{border-radius:3px;padding:14px;margin-bottom:12px;}
 .dark .card{background:#161e2d;border:1px solid #2d4a6a;}
 .light .card{background:#fff;border:1px solid #d5dbdb;}
@@ -155,15 +210,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .light .ib{border:1px solid #d5dbdb;background:#fff;color:#545b64;}
 .light .ib:hover{border-color:#FF9900;color:#FF9900;}
 .light .ib.del:hover{border-color:#b71c1c;color:#b71c1c;background:#ffebee;}
-.empty{padding:28px;text-align:center;font-size:12px;}
+.empty{padding:40px;text-align:center;font-size:12px;}
 .dark .empty{color:#4a6a88;}
 .light .empty{color:#879596;}
+.empty-icon{font-size:32px;margin-bottom:8px;}
 .logs-wrap{margin-top:12px;}
 .logs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
 .logs-title{font-size:12px;font-weight:600;}
 .dark .logs-title{color:#d1dce8;}
 .light .logs-title{color:#16191f;}
-.logs-box{border-radius:3px;padding:12px;font-family:monospace;font-size:11px;max-height:250px;overflow-y:auto;line-height:1.6;}
+.logs-box{border-radius:3px;padding:12px;font-family:monospace;font-size:11px;max-height:300px;overflow-y:auto;line-height:1.6;}
 .dark .logs-box{background:#060e18;border:1px solid #2d4a6a;color:#8aa8c4;}
 .light .logs-box{background:#f8f8f8;border:1px solid #d5dbdb;color:#545b64;}
 .srow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid;}
@@ -182,9 +238,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .divider{border:none;margin:12px 0;}
 .dark .divider{border-top:1px solid #2d4a6a;}
 .light .divider{border-top:1px solid #e8e8e8;}
-.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:14px 0 8px;}
-.dark .section-title{color:#4a6a88;}
-.light .section-title{color:#879596;}
 /* Modal */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:1000;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
@@ -214,25 +267,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </head>
 <body class="dark">
 
-<!-- ENV / Settings Modal -->
+<!-- Settings Modal -->
 <div class="modal-overlay" id="dep-modal">
   <div class="modal">
     <div class="modal-title" id="modal-title">Deployment Settings</div>
-    <div class="modal-sub" id="modal-sub">Update settings for this deployment</div>
+    <div class="modal-sub" id="modal-sub">Update settings</div>
     <div class="modal-tabs">
-      <div class="modal-tab on" data-tab="env">&#127811; ENV Variables</div>
+      <div class="modal-tab on" data-tab="env">&#127811; ENV</div>
       <div class="modal-tab" data-tab="settings">&#9881; Settings</div>
       <div class="modal-tab" data-tab="webhook">&#128279; Webhook</div>
     </div>
-
-    <!-- ENV Tab -->
     <div class="modal-tab-content on" id="tab-env">
       <label class="fl">KEY=VALUE, one per line</label>
-      <textarea class="fi-ta" id="modal-env-input" placeholder="PORT=3000&#10;API_KEY=your_key&#10;DATABASE_URL=postgres://..." style="margin-top:6px;min-height:120px;"></textarea>
+      <textarea class="fi-ta" id="modal-env-input" placeholder="PORT=3000&#10;API_KEY=your_key" style="margin-top:6px;min-height:120px;"></textarea>
       <div class="hint">Existing ENV will be merged. Container will restart.</div>
     </div>
-
-    <!-- Settings Tab -->
     <div class="modal-tab-content" id="tab-settings">
       <div class="fld" style="margin-bottom:10px;">
         <label class="fl">Restart Policy</label>
@@ -246,40 +295,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="fld" style="margin-bottom:10px;">
         <label class="fl">Healthcheck Path</label>
         <input type="text" class="fi" id="modal-health" placeholder="/health" />
-        <div class="hint">Endpoint to verify deployment is live (e.g. /health)</div>
       </div>
       <div class="fld" style="margin-bottom:10px;">
-        <label class="fl">Cron Schedule (optional)</label>
-        <input type="text" class="fi" id="modal-cron" placeholder="*/30 (every 30 mins)" />
-        <div class="hint">Auto redeploy interval e.g. */30 = every 30 minutes</div>
+        <label class="fl">Cron Schedule</label>
+        <input type="text" class="fi" id="modal-cron" placeholder="*/30" />
+        <div class="hint">Auto redeploy e.g. */30 = every 30 minutes</div>
       </div>
       <div class="fld">
-        <label class="fl">Webhook Secret (optional)</label>
+        <label class="fl">Webhook Secret</label>
         <input type="text" class="fi" id="modal-webhook-secret" placeholder="my-secret-key" />
-        <div class="hint">Used to verify GitHub webhook signatures</div>
       </div>
     </div>
-
-    <!-- Webhook Tab -->
     <div class="modal-tab-content" id="tab-webhook">
       <div class="slabel">Webhook URL</div>
-      <div class="sdesc" style="margin-top:4px;">Add this URL to your GitHub repo → Settings → Webhooks → Add webhook</div>
+      <div class="sdesc" style="margin-top:4px;">Add to GitHub repo → Settings → Webhooks</div>
       <div class="webhook-box" id="modal-webhook-url">-</div>
-      <div style="margin-top:10px;">
-        <button class="bs" onclick="copyWebhookUrl()">&#9064; Copy URL</button>
-      </div>
+      <div style="margin-top:10px;"><button class="bs" onclick="copyWebhookUrl()">&#9064; Copy URL</button></div>
       <hr class="divider">
-      <div class="slabel">GitHub Webhook Setup</div>
+      <div class="slabel">Setup Steps</div>
       <div class="sdesc" style="margin-top:4px;line-height:1.8;">
-        1. Go to your repo → Settings → Webhooks<br>
-        2. Click "Add webhook"<br>
-        3. Paste the URL above<br>
-        4. Content type: application/json<br>
-        5. Event: "Just the push event"<br>
-        6. Click "Add webhook"
+        1. Repo → Settings → Webhooks → Add webhook<br>
+        2. Paste URL above<br>
+        3. Content type: application/json<br>
+        4. Event: Push event<br>
+        5. Save
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="bs" id="modal-cancel">Cancel</button>
       <button class="bp" id="modal-save">Save & Apply</button>
@@ -288,7 +329,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </div>
 
 <div class="top">
-  <div class="logo" id="logo-btn" title="Click to refresh">
+  <div class="logo" id="logo-btn">
     <div class="logo-sq">F</div>
     <span>FlashDeploy</span>
     <span style="color:#aab7b8;font-size:10px;font-weight:400;margin-left:4px;">Console</span>
@@ -332,24 +373,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="stats">
         <div class="stat"><div class="sl">Total</div><div class="sv" id="s-total">0</div></div>
         <div class="stat"><div class="sl">Live now</div><div class="sv" id="s-live" style="color:#3dba7a">0</div></div>
-        <div class="stat"><div class="sl">Building</div><div class="sv" id="s-building" style="color:#7ec657">0</div></div>
+        <div class="stat"><div class="sl">Building</div><div class="sv" id="s-building" style="color:#FF9900">0</div></div>
         <div class="stat"><div class="sl">Failed</div><div class="sv" id="s-failed" style="color:#e05252">0</div></div>
       </div>
-      <div class="tbl">
-        <div class="tt">
-          <div class="tn" id="dash-tbl-title">Recent Deployments</div>
-          <div class="fps">
-            <button class="fp on" data-f="all">All</button>
-            <button class="fp" data-f="live">Live</button>
-            <button class="fp" data-f="building">Building</button>
-            <button class="fp" data-f="failed">Failed</button>
-          </div>
+      <!-- View toggle -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="fps">
+          <button class="fp on" data-f="all">All</button>
+          <button class="fp" data-f="live">Live</button>
+          <button class="fp" data-f="building">Building</button>
+          <button class="fp" data-f="failed">Failed</button>
         </div>
-        <div class="thead" style="grid-template-columns:1fr 200px 90px 65px 110px;">
-          <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Actions</div>
+        <div class="view-toggle">
+          <button class="vt on" id="vt-cards" onclick="setView('cards')">&#9646;&#9646; Cards</button>
+          <button class="vt" id="vt-list" onclick="setView('list')">&#9776; List</button>
         </div>
-        <div id="dep-list"><div class="empty">No deployments yet.</div></div>
       </div>
+
+      <!-- Cards view -->
+      <div id="cards-view">
+        <div id="dep-cards" class="cards-grid"></div>
+      </div>
+
+      <!-- List view -->
+      <div id="list-view" style="display:none;">
+        <div class="tbl">
+          <div class="thead" style="grid-template-columns:1fr 200px 90px 65px 110px;">
+            <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Actions</div>
+          </div>
+          <div id="dep-list"><div class="empty">No deployments yet.</div></div>
+        </div>
+      </div>
+
       <div id="logs-wrap" class="logs-wrap" style="display:none;">
         <div class="logs-head">
           <div class="logs-title">Build Logs &mdash; <span id="logs-dep-id"></span></div>
@@ -392,7 +447,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; New Deployment</div>
       <div class="ph"><div class="pt">Deploy from GitHub</div></div>
       <div id="new-msg" class="msg"></div>
-
       <div class="card">
         <div class="ct">Source</div>
         <div class="row">
@@ -419,28 +473,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           </div>
         </div>
       </div>
-
       <div class="card">
         <div class="ct">Build Configuration</div>
         <div class="row" style="margin-bottom:10px;">
           <div class="fld">
             <label class="fl">Dockerfile Path (optional)</label>
             <input type="text" class="fi" id="inp-dockerfile" placeholder="/Dockerfile.web" />
-            <div class="hint">Leave empty for auto-detection. E.g: /Dockerfile.web, /server/Dockerfile</div>
+            <div class="hint">E.g: /Dockerfile.web, /server/Dockerfile</div>
           </div>
           <div class="fld">
             <label class="fl">Root Directory (optional)</label>
             <input type="text" class="fi" id="inp-rootdir" placeholder="/server" />
-            <div class="hint">Subfolder to build from. E.g: /server, /backend</div>
+            <div class="hint">Subfolder to build from</div>
           </div>
         </div>
         <div class="fld">
           <label class="fl">Custom Start Command (optional)</label>
           <input type="text" class="fi" id="inp-startcmd" placeholder="node server/index.js" />
-          <div class="hint">Override default start command</div>
         </div>
       </div>
-
       <div class="card">
         <div class="ct">Deploy Settings</div>
         <div class="row" style="margin-bottom:10px;">
@@ -471,20 +522,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           </div>
         </div>
       </div>
-
       <div class="card">
         <div class="ct">Environment Variables (Optional)</div>
-        <div class="fld">
-          <label class="fl">KEY=VALUE, one per line</label>
-          <textarea class="fi-ta" id="inp-env" placeholder="DATABASE_URL=postgres://...&#10;API_KEY=your_key"></textarea>
-        </div>
+        <textarea class="fi-ta" id="inp-env" placeholder="DATABASE_URL=postgres://...&#10;API_KEY=your_key"></textarea>
       </div>
-
       <div style="display:flex;gap:8px;margin-bottom:16px;">
         <button class="bp" id="btn-deploy" style="min-width:140px;">&#128640; Deploy Now</button>
         <button class="bs" id="btn-cancel-deploy">Cancel</button>
       </div>
-
       <div class="card">
         <div class="ct">Supported Types</div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;font-size:12px;">
@@ -492,7 +537,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           <div><span class="tag">React/Next</span> builds &rarr; nginx</div>
           <div><span class="tag">Python</span> requirements.txt &rarr; app.py</div>
           <div><span class="tag">Static</span> index.html &rarr; nginx</div>
-          <div><span class="tag">Custom</span> uses your Dockerfile</div>
+          <div><span class="tag">Compose</span> docker-compose.yml auto-detected</div>
+          <div><span class="tag">Custom</span> your Dockerfile</div>
         </div>
       </div>
     </div>
@@ -507,36 +553,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         <div class="stat"><div class="sl">Failed</div><div class="sv" id="an-failed" style="color:#e05252">0</div></div>
         <div class="stat"><div class="sl">Success Rate</div><div class="sv" id="an-rate" style="color:#FF9900">0%</div></div>
       </div>
-      <div class="card">
-        <div class="ct">Project Types</div>
-        <div id="an-types" style="display:flex;gap:6px;flex-wrap:wrap;min-height:24px;"></div>
-      </div>
-      <div class="card">
-        <div class="ct">Recent Activity</div>
-        <div id="an-activity"><div class="empty">No data yet.</div></div>
-      </div>
+      <div class="card"><div class="ct">Project Types</div><div id="an-types" style="display:flex;gap:6px;flex-wrap:wrap;min-height:24px;"></div></div>
+      <div class="card"><div class="ct">Recent Activity</div><div id="an-activity"><div class="empty">No data yet.</div></div></div>
     </div>
 
     <!-- ACTIVITY LOG -->
     <div class="page" id="page-logs-page">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Activity Log</div>
-      <div class="ph">
-        <div class="pt">Activity Log</div>
-        <button class="bs" id="btn-refresh-logs">&#8635; Refresh</button>
-      </div>
+      <div class="ph"><div class="pt">Activity Log</div><button class="bs" id="btn-refresh-logs">&#8635; Refresh</button></div>
       <div class="card">
         <div class="ct">Select Deployment</div>
         <div class="row">
-          <div class="fld">
-            <label class="fl">Deployment</label>
-            <select class="fi" id="log-dep-select"><option value="">-- Select --</option></select>
-          </div>
+          <div class="fld"><label class="fl">Deployment</label><select class="fi" id="log-dep-select"><option value="">-- Select --</option></select></div>
           <button class="bp" id="btn-load-logs" style="height:34px;margin-top:16px;">Load Logs</button>
         </div>
       </div>
-      <div id="activity-logs-wrap" style="display:none;">
-        <div class="logs-box" id="activity-logs-box" style="max-height:400px;"></div>
-      </div>
+      <div id="activity-logs-wrap" style="display:none;"><div class="logs-box" id="activity-logs-box" style="max-height:400px;"></div></div>
     </div>
 
     <!-- SETTINGS -->
@@ -557,7 +589,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="card">
         <div class="ct">GitHub Configuration</div>
         <div class="srow">
-          <div><div class="slabel">Personal Access Token</div><div class="sdesc">Required for private repos (repo scope)</div></div>
+          <div><div class="slabel">Personal Access Token</div><div class="sdesc">Required for private repos</div></div>
           <div style="display:flex;gap:6px;align-items:center;">
             <input type="password" class="fi" id="setting-token" style="width:220px;" placeholder="ghp_xxxxxxxxxxxx" />
             <button class="bp" id="btn-save-token" style="padding:5px 12px;">Save</button>
@@ -567,11 +599,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="card">
         <div class="ct">Deployment Defaults</div>
         <div class="srow">
-          <div><div class="slabel">Default Expiry</div><div class="sdesc">Applied to new deployments</div></div>
+          <div><div class="slabel">Default Expiry</div></div>
           <select class="fi" id="setting-expiry" style="width:130px;"><option value="7days">7 days</option><option value="30days" selected>30 days</option><option value="90days">90 days</option></select>
         </div>
         <div class="srow">
-          <div><div class="slabel">Default Branch</div><div class="sdesc">Default branch to deploy</div></div>
+          <div><div class="slabel">Default Branch</div></div>
           <select class="fi" id="setting-branch" style="width:130px;"><option value="main">main</option><option value="master">master</option></select>
         </div>
         <div style="margin-top:12px;"><button class="bp" id="btn-save-defaults">Save Defaults</button></div>
@@ -579,7 +611,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="card" style="border-color:#a32d2d;">
         <div class="ct" style="color:#e05252;">Danger Zone</div>
         <div class="srow">
-          <div><div class="slabel">Delete All Failed Deployments</div><div class="sdesc">Remove all failed containers and records</div></div>
+          <div><div class="slabel">Delete All Failed Deployments</div></div>
           <button class="bdanger" id="btn-delete-failed">Delete Failed</button>
         </div>
       </div>
@@ -589,7 +621,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </div>
 
 <script>
-var deps=[],filter='all',filter2='all',currentPage='dashboard',modalDepId=null,currentModalTab='env';
+var deps=[],filter='all',filter2='all',currentPage='dashboard',modalDepId=null,currentView='cards';
 var cfg={ip:localStorage.getItem('fd_ip')||'54.204.232.10',token:localStorage.getItem('fd_token')||'',expiry:localStorage.getItem('fd_expiry')||'30days',branch:localStorage.getItem('fd_branch')||'main'};
 
 document.getElementById('setting-ip').value=cfg.ip;
@@ -610,6 +642,15 @@ function setTheme(t){
 }
 setTheme(localStorage.getItem('fd_theme')||'dark');
 
+function setView(v){
+  currentView=v;
+  document.getElementById('vt-cards').classList.toggle('on',v==='cards');
+  document.getElementById('vt-list').classList.toggle('on',v==='list');
+  document.getElementById('cards-view').style.display=v==='cards'?'block':'none';
+  document.getElementById('list-view').style.display=v==='list'?'block':'none';
+  renderDash();
+}
+
 function goTo(page){
   currentPage=page;
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
@@ -624,11 +665,11 @@ document.querySelectorAll('.si').forEach(function(el){el.onclick=function(){goTo
 // Modal tabs
 document.querySelectorAll('.modal-tab').forEach(function(tab){
   tab.onclick=function(){
-    currentModalTab=this.getAttribute('data-tab');
-    document.querySelectorAll('.modal-tab').forEach(function(t){t.classList.remove('on');});
-    document.querySelectorAll('.modal-tab-content').forEach(function(c){c.classList.remove('on');});
+    var t=this.getAttribute('data-tab');
+    document.querySelectorAll('.modal-tab').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('.modal-tab-content').forEach(function(x){x.classList.remove('on');});
     this.classList.add('on');
-    document.getElementById('tab-'+currentModalTab).classList.add('on');
+    document.getElementById('tab-'+t).classList.add('on');
   };
 });
 
@@ -657,73 +698,85 @@ function actHtml(dep){
   return h;
 }
 
-// Show deployment modal
+// Railway style card
+function renderCard(dep){
+  var isCompose = dep.projectType === 'compose';
+  var services = dep.services || {};
+  var svcNames = Object.keys(services);
+
+  var statusDot = '<span class="status-dot '+dep.status+'"></span>';
+  var statusTxt = dep.status==='live'?'Online':dep.status==='building'?'Building':'Failed';
+
+  var urlHtml = '';
+  if(isCompose && svcNames.length > 0){
+    urlHtml = '<div class="svc-cards">';
+    svcNames.forEach(function(svc){
+      var svcData = services[svc];
+      urlHtml += '<div class="svc-card"><span class="status-dot live"></span><div><div class="svc-name">'+svc+'</div><div class="card-url" style="margin-top:0;">'+(svcData.url||'')+'</div></div></div>';
+    });
+    urlHtml += '</div>';
+  } else if(dep.accessUrl){
+    urlHtml = '<div class="card-url">'+dep.accessUrl+'</div>';
+  }
+
+  var html = '<div class="dep-card" onclick="cardClick(event,\''+dep.id+'\')">';
+  html += '<div class="card-header">';
+  html += '<div class="card-icon">&#128736;</div>';
+  html += '<div><div class="card-name">'+repoName(dep.repoUrl)+'</div><div class="card-repo">'+dep.id+' &middot; '+(dep.branch||'main')+'</div></div>';
+  html += '</div>';
+  html += '<div class="card-status">'+statusDot+'<span class="status-text '+dep.status+'">'+statusTxt+'</span></div>';
+  html += urlHtml;
+  html += '<div class="card-footer">';
+  html += '<span class="card-meta">'+(dep.projectType||'detecting')+' &middot; '+daysLeft(dep.expiresAt)+'</span>';
+  html += '<div class="card-actions">'+actHtml(dep)+'</div>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+function cardClick(e, id){
+  if(e.target.classList.contains('ib') || e.target.tagName==='BUTTON') return;
+  viewLogs(id);
+}
+
 function showDepModal(id){
   modalDepId=id;
   var dep=deps.find(function(d){return d.id===id;});
   if(!dep)return;
   document.getElementById('modal-title').textContent='Deployment: '+id;
-  document.getElementById('modal-sub').textContent=repoName(dep.repoUrl)+' &mdash; '+dep.branch;
+  document.getElementById('modal-sub').textContent=repoName(dep.repoUrl)+' — '+dep.branch;
   document.getElementById('modal-env-input').value='';
   document.getElementById('modal-restart').value=dep.restartPolicy||'unless-stopped';
   document.getElementById('modal-health').value=dep.healthcheckPath||'';
   document.getElementById('modal-cron').value=dep.cronSchedule||'';
   document.getElementById('modal-webhook-secret').value=dep.webhookSecret||'';
-  // Set webhook URL
-  var webhookUrl=window.location.origin+'/webhook/'+id;
-  document.getElementById('modal-webhook-url').textContent=webhookUrl;
-  // Reset to ENV tab
+  document.getElementById('modal-webhook-url').textContent=window.location.origin+'/webhook/'+id;
   document.querySelectorAll('.modal-tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.modal-tab-content').forEach(function(c){c.classList.remove('on');});
   document.querySelector('.modal-tab[data-tab="env"]').classList.add('on');
   document.getElementById('tab-env').classList.add('on');
-  currentModalTab='env';
   document.getElementById('dep-modal').classList.add('show');
 }
 
 function copyWebhookUrl(){
-  var url=document.getElementById('modal-webhook-url').textContent;
-  navigator.clipboard.writeText(url).then(function(){showMsg('dash-msg','Webhook URL copied!','ok');});
+  navigator.clipboard.writeText(document.getElementById('modal-webhook-url').textContent).then(function(){showMsg('dash-msg','Webhook URL copied!','ok');});
 }
 
-document.getElementById('modal-cancel').onclick=function(){
-  document.getElementById('dep-modal').classList.remove('show');modalDepId=null;
-};
-document.getElementById('dep-modal').onclick=function(e){
-  if(e.target===this){this.classList.remove('show');modalDepId=null;}
-};
+document.getElementById('modal-cancel').onclick=function(){document.getElementById('dep-modal').classList.remove('show');modalDepId=null;};
+document.getElementById('dep-modal').onclick=function(e){if(e.target===this){this.classList.remove('show');modalDepId=null;}};
 
 document.getElementById('modal-save').onclick=function(){
   if(!modalDepId)return;
   var btn=this;btn.disabled=true;btn.textContent='Saving...';
-
   var promises=[];
-
-  // Save ENV if tab was env or if env has content
   var envRaw=document.getElementById('modal-env-input').value.trim();
   if(envRaw){
     var envVars={};
     envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});
     promises.push(fetch('/deployments/'+modalDepId+'/env',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envVars:envVars})}).then(function(r){return r.json();}));
   }
-
-  // Save settings
-  var settingsData={
-    restartPolicy:document.getElementById('modal-restart').value,
-    healthcheckPath:document.getElementById('modal-health').value,
-    cronSchedule:document.getElementById('modal-cron').value,
-    webhookSecret:document.getElementById('modal-webhook-secret').value
-  };
-  promises.push(fetch('/deployments/'+modalDepId+'/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settingsData)}).then(function(r){return r.json();}));
-
-  Promise.all(promises)
-  .then(function(){
-    document.getElementById('dep-modal').classList.remove('show');
-    showMsg('dash-msg','Settings saved!','ok');
-    setTimeout(loadDeps,2000);
-  })
-  .catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');})
-  .finally(function(){btn.disabled=false;btn.textContent='Save & Apply';modalDepId=null;});
+  promises.push(fetch('/deployments/'+modalDepId+'/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({restartPolicy:document.getElementById('modal-restart').value,healthcheckPath:document.getElementById('modal-health').value,cronSchedule:document.getElementById('modal-cron').value,webhookSecret:document.getElementById('modal-webhook-secret').value})}).then(function(r){return r.json();}));
+  Promise.all(promises).then(function(){document.getElementById('dep-modal').classList.remove('show');showMsg('dash-msg','Settings saved!','ok');setTimeout(loadDeps,2000);}).catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');}).finally(function(){btn.disabled=false;btn.textContent='Save & Apply';modalDepId=null;});
 };
 
 function loadDeps(){
@@ -745,16 +798,27 @@ function renderDash(){
   document.getElementById('s-building').textContent=building;
   document.getElementById('s-failed').textContent=failed;
   var filtered=filter==='all'?deps:deps.filter(function(d){return d.status===filter;});
-  document.getElementById('dash-tbl-title').textContent='Deployments ('+filtered.length+')';
-  if(!filtered.length){document.getElementById('dep-list').innerHTML='<div class="empty">No deployments yet. Click "+ New deployment" to start!</div>';return;}
-  var html='';
-  filtered.forEach(function(d){
-    html+='<div class="dr" style="grid-template-columns:1fr 200px 90px 65px 110px;">';
-    html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+(d.restartPolicy?' &middot; '+d.restartPolicy:'')+'</div></div>';
-    html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
-    html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
-  });
-  document.getElementById('dep-list').innerHTML=html;
+
+  // Cards view
+  if(!filtered.length){
+    document.getElementById('dep-cards').innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">&#128640;</div><div>No deployments yet.</div><div style="margin-top:8px;"><button class="bp" onclick="goTo(\'new-deploy\')">+ New deployment</button></div></div>';
+  } else {
+    document.getElementById('dep-cards').innerHTML=filtered.map(renderCard).join('');
+  }
+
+  // List view
+  if(!filtered.length){
+    document.getElementById('dep-list').innerHTML='<div class="empty">No deployments yet.</div>';
+  } else {
+    var html='';
+    filtered.forEach(function(d){
+      html+='<div class="dr" style="grid-template-columns:1fr 200px 90px 65px 110px;">';
+      html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+'</div></div>';
+      html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
+      html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
+    });
+    document.getElementById('dep-list').innerHTML=html;
+  }
 }
 
 function renderDeps2(){
@@ -780,9 +844,7 @@ function renderAnalytics(){
   document.getElementById('an-failed').textContent=failed;document.getElementById('an-rate').textContent=rate+'%';
   var types={};deps.forEach(function(d){var t=d.projectType||'unknown';types[t]=(types[t]||0)+1;});
   document.getElementById('an-types').innerHTML=Object.keys(types).map(function(t){return'<span class="tag">'+t+': '+types[t]+'</span>';}).join('')||'<span style="color:#4a6a88">No data yet</span>';
-  document.getElementById('an-activity').innerHTML=deps.slice(0,10).map(function(d){
-    return'<div style="padding:6px 0;border-bottom:1px solid #2d4a6a;display:flex;justify-content:space-between;align-items:center;"><span class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</span>'+badgeHtml(d.status)+'</div>';
-  }).join('')||'<div class="empty">No activity yet.</div>';
+  document.getElementById('an-activity').innerHTML=deps.slice(0,10).map(function(d){return'<div style="padding:6px 0;border-bottom:1px solid #2d4a6a;display:flex;justify-content:space-between;align-items:center;"><span class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</span>'+badgeHtml(d.status)+'</div>';}).join('')||'<div class="empty">No activity yet.</div>';
 }
 
 function populateLogSelect(){
@@ -823,34 +885,19 @@ function doDeploy(){
   var restartPolicy=document.getElementById('inp-restart').value;
   var webhookSecret=document.getElementById('inp-webhook-secret').value.trim();
   var cronSchedule=document.getElementById('inp-cron').value.trim();
-
   if(!url){showMsg('new-msg','Please enter a GitHub repository URL','err');return;}
   var envVars={};
   if(envRaw){envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
-
   var btn=document.getElementById('btn-deploy');btn.disabled=true;btn.textContent='Deploying...';
   showMsg('new-msg','Starting deployment...','inf',0);
-
-  fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    repoUrl:url,branch:branch,expiry:expiry,envVars:envVars,token:cfg.token,
-    dockerfilePath:dockerfilePath,rootDirectory:rootDirectory,startCommand:startCommand,
-    healthcheckPath:healthcheckPath,restartPolicy:restartPolicy,
-    webhookSecret:webhookSecret,cronSchedule:cronSchedule
-  })})
+  fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repoUrl:url,branch:branch,expiry:expiry,envVars:envVars,token:cfg.token,dockerfilePath:dockerfilePath,rootDirectory:rootDirectory,startCommand:startCommand,healthcheckPath:healthcheckPath,restartPolicy:restartPolicy,webhookSecret:webhookSecret,cronSchedule:cronSchedule})})
   .then(function(r){return r.json();})
   .then(function(data){
     if(data.error)throw new Error(data.error);
-    var msg='Deployment started! ID: '+data.id;
-    if(data.webhookUrl)msg+=' | Webhook: '+window.location.origin+data.webhookUrl;
-    showMsg('new-msg',msg,'ok');
-    document.getElementById('inp-url').value='';
-    document.getElementById('inp-env').value='';
-    document.getElementById('inp-dockerfile').value='';
-    document.getElementById('inp-rootdir').value='';
-    document.getElementById('inp-startcmd').value='';
-    document.getElementById('inp-health').value='';
-    document.getElementById('inp-webhook-secret').value='';
-    document.getElementById('inp-cron').value='';
+    showMsg('new-msg','Deployment started! ID: '+data.id,'ok');
+    document.getElementById('inp-url').value='';document.getElementById('inp-env').value='';
+    document.getElementById('inp-dockerfile').value='';document.getElementById('inp-rootdir').value='';
+    document.getElementById('inp-startcmd').value='';document.getElementById('inp-health').value='';
     setTimeout(function(){loadDeps();goTo('dashboard');},2000);
   })
   .catch(function(e){showMsg('new-msg','Error: '+e.message,'err');})
@@ -867,12 +914,8 @@ document.getElementById('btn-cancel-deploy').onclick=function(){goTo('dashboard'
 document.getElementById('btn-close-logs').onclick=function(){document.getElementById('logs-wrap').style.display='none';};
 document.getElementById('inp-url').onkeydown=function(e){if(e.key==='Enter')doDeploy();};
 
-document.querySelectorAll('[data-f]').forEach(function(btn){
-  btn.onclick=function(){filter=this.getAttribute('data-f');document.querySelectorAll('[data-f]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDash();};
-});
-document.querySelectorAll('[data-f2]').forEach(function(btn){
-  btn.onclick=function(){filter2=this.getAttribute('data-f2');document.querySelectorAll('[data-f2]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDeps2();};
-});
+document.querySelectorAll('[data-f]').forEach(function(btn){btn.onclick=function(){filter=this.getAttribute('data-f');document.querySelectorAll('[data-f]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDash();};});
+document.querySelectorAll('[data-f2]').forEach(function(btn){btn.onclick=function(){filter2=this.getAttribute('data-f2');document.querySelectorAll('[data-f2]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDeps2();};});
 
 document.getElementById('btn-save-ip').onclick=function(){var ip=document.getElementById('setting-ip').value.trim();if(!ip){showMsg('settings-msg','Enter a valid IP','err');return;}cfg.ip=ip;localStorage.setItem('fd_ip',ip);document.getElementById('ip-display').textContent=ip;showMsg('settings-msg','Server IP saved!','ok');};
 document.getElementById('btn-save-token').onclick=function(){var token=document.getElementById('setting-token').value.trim();cfg.token=token;localStorage.setItem('fd_token',token);showMsg('settings-msg','Token saved!','ok');};
