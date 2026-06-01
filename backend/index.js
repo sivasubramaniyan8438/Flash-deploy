@@ -490,7 +490,7 @@ async function runDeploy(id, repoUrl, branch, token, envVars, dockerfilePath, ro
     }
 
     // Check for docker-compose
-    const composePath = hasComposeFile(repoPath, composeFile);
+    const composePath = !dockerfilePath && hasComposeFile(repoPath, composeFile);
     if (composePath) {
       const { services, containerIds, mainUrl } = await deployWithCompose(id, repoPath, composePath, envVars || {}, restartPolicy);
       await pool.query(
