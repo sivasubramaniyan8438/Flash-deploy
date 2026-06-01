@@ -446,7 +446,6 @@ document.getElementById('ip-display').textContent=cfg.ip;
 document.getElementById('inp-expiry').value=cfg.expiry;
 document.getElementById('inp-branch').value=cfg.branch;
 
-// Logo click = page refresh
 document.getElementById('logo-btn').onclick=function(){location.reload();};
 
 function setTheme(t){
@@ -587,7 +586,7 @@ function doDeploy(){
   if(envRaw){envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
   var btn=document.getElementById('btn-deploy');btn.disabled=true;btn.textContent='Deploying...';
   showMsg('new-msg','Starting...','inf',0);
-  fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repoUrl:url,branch:branch,expiry:expiry,envVars:envVars})})
+  fetch('/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({repoUrl:url,branch:branch,expiry:expiry,envVars:envVars,token:cfg.token})})
   .then(function(r){return r.json();})
   .then(function(data){
     if(data.error)throw new Error(data.error);
