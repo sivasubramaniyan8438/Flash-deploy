@@ -225,7 +225,7 @@ async function deployWithCompose(id, repoPath, composePath, envVars, restartPoli
   await addLog(id, 'Compose build successful');
 
   // Start compose
-  execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d', {
+  execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --force-recreate', {
     cwd: repoPath, stdio: 'pipe', timeout: 120000
   });
   await addLog(id, 'Compose services started');
@@ -379,7 +379,7 @@ app.post('/deployments/:id/env', async (req, res) => {
         const envLines = Object.entries(envVars).map(([k,v]) => k + '=' + v);
         fs.writeFileSync(path.join(repoPath, '.env'), envLines.join('\n'));
         const projectName = 'flash' + dep.id;
-        execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d', { cwd: repoPath, stdio: 'pipe' });
+        execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --force-recreate', { cwd: repoPath, stdio: 'pipe' });
         await addLog(dep.id, 'ENV updated for compose services');
         return res.json({ success: true, message: 'ENV updated!' });
       }
