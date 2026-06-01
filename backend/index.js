@@ -133,15 +133,20 @@ function buildCloneUrl(repoUrl, token) {
     u.username = token;
     u.password = 'x-oauth-basic';
     return u.toString();
-  } catch(e) {
-    return repoUrl;
-  }
+  } catch(e) { return repoUrl; }
 }
 
 function getIntPort(projectType) {
   if (projectType === 'react' || projectType === 'static') return '80';
   if (projectType === 'python') return '8000';
   return '3000';
+}
+
+// nip.io subdomain URL - no port in URL!
+function buildAccessUrl(serverIP, hostPort, projectType) {
+  const ipDash = serverIP.replace(/\./g, '-');
+  // nip.io maps port.ip-dash.nip.io -> ip:port
+  return 'http://' + hostPort + '.' + ipDash + '.nip.io';
 }
 
 async function cleanupExpired() {
@@ -312,7 +317,11 @@ app.post('/deploy', async (req, res) => {
       const exposedPorts = {};
       exposedPorts[intPort + '/tcp'] = {};
 
-      const envArray = ['PORT=' + hostPort, ...Object.entries(envVars).map(([k,v]) => k + '=' + v)];
+      // PORT = internal container port (3000/80/8000) - NOT host port!
+      const envArray = [
+        'PORT=' + intPort,
+        ...Object.entries(envVars).map(([k,v]) => k + '=' + v)
+      ];
 
       const container = await docker.createContainer({
         Image: imgName,
@@ -331,7 +340,7 @@ app.post('/deploy', async (req, res) => {
       await addLog(id, 'Container started on port ' + hostPort);
 
       const serverIP = process.env.SERVER_IP || '34.201.132.220';
-      const accessUrl = 'http://' + serverIP + ':' + hostPort;
+      const accessUrl = buildAccessUrl(serverIP, hostPort, type);
 
       await pool.query(
         `UPDATE deployments SET status=$1, container_id=$2, project_type=$3, access_url=$4 WHERE id=$5`,
