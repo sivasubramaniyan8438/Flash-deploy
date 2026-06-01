@@ -184,9 +184,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .divider{border:none;margin:12px 0;}
 .dark .divider{border-top:1px solid #2d4a6a;}
 .light .divider{border-top:1px solid #e8e8e8;}
+/* ENV Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{border-radius:6px;padding:20px;width:440px;max-width:90vw;}
+.dark .modal{background:#161e2d;border:1px solid #2d4a6a;}
+.light .modal{background:#fff;border:1px solid #d5dbdb;}
+.modal-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.dark .modal-title{color:#d1dce8;}
+.light .modal-title{color:#16191f;}
+.modal-sub{font-size:11px;margin-bottom:12px;}
+.dark .modal-sub{color:#4a6a88;}
+.light .modal-sub{color:#879596;}
+.modal-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
 </style>
 </head>
 <body class="dark">
+
+<!-- ENV Modal -->
+<div class="modal-overlay" id="env-modal">
+  <div class="modal">
+    <div class="modal-title">&#9881; Update Environment Variables</div>
+    <div class="modal-sub">Container will restart with new ENV. Existing ENV will be merged.</div>
+    <label class="fl">KEY=VALUE, one per line</label>
+    <textarea class="fi-ta" id="modal-env-input" placeholder="PORT=3000&#10;API_KEY=your_key&#10;DATABASE_URL=postgres://..." style="margin-top:6px;min-height:120px;"></textarea>
+    <div class="modal-actions">
+      <button class="bs" id="modal-cancel">Cancel</button>
+      <button class="bp" id="modal-save">&#9881; Update & Restart</button>
+    </div>
+  </div>
+</div>
 
 <div class="top">
   <div class="logo" id="logo-btn" title="Click to refresh">
@@ -246,7 +273,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
             <button class="fp" data-f="failed">Failed</button>
           </div>
         </div>
-        <div class="thead" style="grid-template-columns:1fr 180px 90px 65px 90px;">
+        <div class="thead" style="grid-template-columns:1fr 180px 90px 65px 100px;">
           <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Actions</div>
         </div>
         <div id="dep-list"><div class="empty">No deployments yet.</div></div>
@@ -281,7 +308,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
             <button class="fp" data-f2="failed">Failed</button>
           </div>
         </div>
-        <div class="thead" style="grid-template-columns:1fr 180px 80px 65px 70px 90px;">
+        <div class="thead" style="grid-template-columns:1fr 180px 80px 65px 70px 100px;">
           <div class="thc">Name</div><div class="thc">URL</div><div class="thc">Status</div><div class="thc">Expires</div><div class="thc">Created</div><div class="thc">Actions</div>
         </div>
         <div id="dep-list2"><div class="empty">No deployments yet.</div></div>
@@ -435,7 +462,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </div>
 
 <script>
-var deps=[],filter='all',filter2='all',currentPage='dashboard';
+var deps=[],filter='all',filter2='all',currentPage='dashboard',envModalDepId=null;
 var cfg={ip:localStorage.getItem('fd_ip')||'54.204.232.10',token:localStorage.getItem('fd_token')||'',expiry:localStorage.getItem('fd_expiry')||'30days',branch:localStorage.getItem('fd_branch')||'main'};
 
 document.getElementById('setting-ip').value=cfg.ip;
@@ -486,11 +513,43 @@ function chipHtml(dep){
 function badgeHtml(s){var t=s==='live'?'Running':s==='building'?'Building':'Failed';return '<span class="badge '+s+'">'+t+'</span>';}
 function actHtml(dep){
   var h='';
-  if(dep.status==='live'&&dep.accessUrl){h+='<button class="ib" title="Open" onclick="openApp(\''+dep.accessUrl+'\')">&#8599;</button>';h+='<button class="ib" title="Copy" onclick="copyUrl(\''+dep.accessUrl+'\')">&#9064;</button>';}
+  if(dep.status==='live'&&dep.accessUrl){h+='<button class="ib" title="Open" onclick="openApp(\''+dep.accessUrl+'\')">&#8599;</button>';h+='<button class="ib" title="Copy URL" onclick="copyUrl(\''+dep.accessUrl+'\')">&#9064;</button>';}
+  h+='<button class="ib" title="Update ENV" onclick="showEnvModal(\''+dep.id+'\')">&#9881;</button>';
   h+='<button class="ib" title="Logs" onclick="viewLogs(\''+dep.id+'\')">&#8801;</button>';
   h+='<button class="ib del" title="Delete" onclick="delDep(\''+dep.id+'\')">&#10005;</button>';
   return h;
 }
+
+// ENV Modal
+function showEnvModal(id){
+  envModalDepId=id;
+  document.getElementById('modal-env-input').value='';
+  document.getElementById('env-modal').classList.add('show');
+}
+document.getElementById('modal-cancel').onclick=function(){
+  document.getElementById('env-modal').classList.remove('show');
+  envModalDepId=null;
+};
+document.getElementById('env-modal').onclick=function(e){
+  if(e.target===this){this.classList.remove('show');envModalDepId=null;}
+};
+document.getElementById('modal-save').onclick=function(){
+  if(!envModalDepId)return;
+  var raw=document.getElementById('modal-env-input').value.trim();
+  var envVars={};
+  if(raw){raw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
+  var btn=this;btn.disabled=true;btn.textContent='Updating...';
+  fetch('/deployments/'+envModalDepId+'/env',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envVars:envVars})})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.error)throw new Error(data.error);
+    document.getElementById('env-modal').classList.remove('show');
+    showMsg('dash-msg','ENV Updated & Container Restarted!','ok');
+    setTimeout(loadDeps,2000);
+  })
+  .catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML='&#9881; Update & Restart';envModalDepId=null;});
+};
 
 function loadDeps(){
   fetch('/deployments').then(function(r){return r.json();}).then(function(data){
@@ -515,7 +574,7 @@ function renderDash(){
   if(!filtered.length){document.getElementById('dep-list').innerHTML='<div class="empty">No deployments yet. Click "+ New deployment" to start!</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    html+='<div class="dr" style="grid-template-columns:1fr 180px 90px 65px 90px;">';
+    html+='<div class="dr" style="grid-template-columns:1fr 180px 90px 65px 100px;">';
     html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+'</div></div>';
     html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
     html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
@@ -529,7 +588,7 @@ function renderDeps2(){
   if(!filtered.length){document.getElementById('dep-list2').innerHTML='<div class="empty">No deployments found.</div>';return;}
   var html='';
   filtered.forEach(function(d){
-    html+='<div class="dr" style="grid-template-columns:1fr 180px 80px 65px 70px 90px;">';
+    html+='<div class="dr" style="grid-template-columns:1fr 180px 80px 65px 70px 100px;">';
     html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.repoUrl||'')+'</div></div>';
     html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
     html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="exp">'+fmtDate(d.createdAt)+'</div>';
