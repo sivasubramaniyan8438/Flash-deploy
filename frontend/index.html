@@ -67,7 +67,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .sv{font-size:20px;font-weight:600;}
 .dark .sv{color:#d1dce8;}
 .light .sv{color:#16191f;}
-/* Railway style cards */
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px;}
 .dep-card{border-radius:6px;padding:16px;cursor:pointer;transition:border-color 0.15s;}
 .dark .dep-card{background:#161e2d;border:1px solid #2d4a6a;}
@@ -107,7 +106,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .dark .card-meta{color:#4a6a88;}
 .light .card-meta{color:#879596;}
 .card-actions{display:flex;gap:4px;}
-/* Service cards for compose */
 .svc-cards{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
 .svc-card{border-radius:4px;padding:6px 10px;font-size:10px;display:flex;align-items:center;gap:5px;}
 .dark .svc-card{background:#1a2d42;border:1px solid #2d4a6a;}
@@ -115,8 +113,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .svc-name{font-weight:600;}
 .dark .svc-name{color:#d1dce8;}
 .light .svc-name{color:#16191f;}
-/* Card view toggle */
-.view-toggle{display:flex;gap:4px;margin-bottom:12px;}
+.view-toggle{display:flex;gap:4px;}
 .vt{padding:4px 10px;border-radius:3px;cursor:pointer;font-size:11px;border:none;}
 .dark .vt{background:#1b2b3f;color:#8aa8c4;border:1px solid #2d4a6a;}
 .dark .vt.on{background:#FF9900;color:#fff;border-color:#FF9900;}
@@ -213,7 +210,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .empty{padding:40px;text-align:center;font-size:12px;}
 .dark .empty{color:#4a6a88;}
 .light .empty{color:#879596;}
-.empty-icon{font-size:32px;margin-bottom:8px;}
 .logs-wrap{margin-top:12px;}
 .logs-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
 .logs-title{font-size:12px;font-weight:600;}
@@ -238,7 +234,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .divider{border:none;margin:12px 0;}
 .dark .divider{border-top:1px solid #2d4a6a;}
 .light .divider{border-top:1px solid #e8e8e8;}
-/* Modal */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:1000;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
 .modal{border-radius:6px;padding:20px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;}
@@ -263,11 +258,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .webhook-box{font-family:monospace;font-size:11px;padding:8px;border-radius:3px;word-break:break-all;margin-top:6px;}
 .dark .webhook-box{background:#060e18;border:1px solid #2d4a6a;color:#7ec657;}
 .light .webhook-box{background:#f8f8f8;border:1px solid #d5dbdb;color:#1b5e20;}
+.env-loading{font-size:11px;padding:8px;}
+.dark .env-loading{color:#4a6a88;}
+.light .env-loading{color:#879596;}
 </style>
 </head>
 <body class="dark">
 
-<!-- Settings Modal -->
 <div class="modal-overlay" id="dep-modal">
   <div class="modal">
     <div class="modal-title" id="modal-title">Deployment Settings</div>
@@ -278,9 +275,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="modal-tab" data-tab="webhook">&#128279; Webhook</div>
     </div>
     <div class="modal-tab-content on" id="tab-env">
-      <label class="fl">KEY=VALUE, one per line</label>
-      <textarea class="fi-ta" id="modal-env-input" placeholder="PORT=3000&#10;API_KEY=your_key" style="margin-top:6px;min-height:120px;"></textarea>
-      <div class="hint">Existing ENV will be merged. Container will restart.</div>
+      <div class="env-loading" id="env-loading">Loading existing ENV...</div>
+      <textarea class="fi-ta" id="modal-env-input" placeholder="KEY=VALUE one per line&#10;PORT=3000&#10;API_KEY=your_key" style="margin-top:6px;min-height:150px;display:none;"></textarea>
+      <div class="hint" style="margin-top:6px;">Existing ENV will be merged. New values override old ones.</div>
     </div>
     <div class="modal-tab-content" id="tab-settings">
       <div class="fld" style="margin-bottom:10px;">
@@ -358,8 +355,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
   </div>
 
   <div class="main">
-
-    <!-- DASHBOARD -->
     <div class="page on" id="page-dashboard">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Dashboard</div>
       <div class="ph">
@@ -376,7 +371,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         <div class="stat"><div class="sl">Building</div><div class="sv" id="s-building" style="color:#FF9900">0</div></div>
         <div class="stat"><div class="sl">Failed</div><div class="sv" id="s-failed" style="color:#e05252">0</div></div>
       </div>
-      <!-- View toggle -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div class="fps">
           <button class="fp on" data-f="all">All</button>
@@ -389,13 +383,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           <button class="vt" id="vt-list" onclick="setView('list')">&#9776; List</button>
         </div>
       </div>
-
-      <!-- Cards view -->
-      <div id="cards-view">
-        <div id="dep-cards" class="cards-grid"></div>
-      </div>
-
-      <!-- List view -->
+      <div id="cards-view"><div id="dep-cards" class="cards-grid"></div></div>
       <div id="list-view" style="display:none;">
         <div class="tbl">
           <div class="thead" style="grid-template-columns:1fr 200px 90px 65px 110px;">
@@ -404,7 +392,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
           <div id="dep-list"><div class="empty">No deployments yet.</div></div>
         </div>
       </div>
-
       <div id="logs-wrap" class="logs-wrap" style="display:none;">
         <div class="logs-head">
           <div class="logs-title">Build Logs &mdash; <span id="logs-dep-id"></span></div>
@@ -414,7 +401,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       </div>
     </div>
 
-    <!-- DEPLOYMENTS -->
     <div class="page" id="page-deployments">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Deployments</div>
       <div class="ph">
@@ -442,7 +428,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       </div>
     </div>
 
-    <!-- NEW DEPLOY -->
     <div class="page" id="page-new-deploy">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; New Deployment</div>
       <div class="ph"><div class="pt">Deploy from GitHub</div></div>
@@ -543,7 +528,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       </div>
     </div>
 
-    <!-- ANALYTICS -->
     <div class="page" id="page-analytics">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Analytics</div>
       <div class="ph"><div class="pt">Analytics</div></div>
@@ -557,7 +541,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div class="card"><div class="ct">Recent Activity</div><div id="an-activity"><div class="empty">No data yet.</div></div></div>
     </div>
 
-    <!-- ACTIVITY LOG -->
     <div class="page" id="page-logs-page">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Activity Log</div>
       <div class="ph"><div class="pt">Activity Log</div><button class="bs" id="btn-refresh-logs">&#8635; Refresh</button></div>
@@ -571,7 +554,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
       <div id="activity-logs-wrap" style="display:none;"><div class="logs-box" id="activity-logs-box" style="max-height:400px;"></div></div>
     </div>
 
-    <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="bc"><a onclick="goTo('dashboard')">FlashDeploy</a> &rsaquo; Settings</div>
       <div class="ph"><div class="pt">Settings</div></div>
@@ -616,7 +598,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -631,7 +612,6 @@ document.getElementById('setting-branch').value=cfg.branch;
 document.getElementById('ip-display').textContent=cfg.ip;
 document.getElementById('inp-expiry').value=cfg.expiry;
 document.getElementById('inp-branch').value=cfg.branch;
-
 document.getElementById('logo-btn').onclick=function(){location.reload();};
 
 function setTheme(t){
@@ -662,7 +642,6 @@ function goTo(page){
 }
 document.querySelectorAll('.si').forEach(function(el){el.onclick=function(){goTo(this.getAttribute('data-page'));};});
 
-// Modal tabs
 document.querySelectorAll('.modal-tab').forEach(function(tab){
   tab.onclick=function(){
     var t=this.getAttribute('data-tab');
@@ -698,44 +677,35 @@ function actHtml(dep){
   return h;
 }
 
-// Railway style card
 function renderCard(dep){
-  var isCompose = dep.projectType === 'compose';
-  var services = dep.services || {};
-  var svcNames = Object.keys(services);
-
-  var statusDot = '<span class="status-dot '+dep.status+'"></span>';
-  var statusTxt = dep.status==='live'?'Online':dep.status==='building'?'Building':'Failed';
-
-  var urlHtml = '';
-  if(isCompose && svcNames.length > 0){
-    urlHtml = '<div class="svc-cards">';
+  var isCompose=dep.projectType==='compose';
+  var services=dep.services||{};
+  var svcNames=Object.keys(services);
+  var statusDot='<span class="status-dot '+dep.status+'"></span>';
+  var statusTxt=dep.status==='live'?'Online':dep.status==='building'?'Building':'Failed';
+  var urlHtml='';
+  if(isCompose&&svcNames.length>0){
+    urlHtml='<div class="svc-cards">';
     svcNames.forEach(function(svc){
-      var svcData = services[svc];
-      urlHtml += '<div class="svc-card"><span class="status-dot live"></span><div><div class="svc-name">'+svc+'</div><div class="card-url" style="margin-top:0;">'+(svcData.url||'')+'</div></div></div>';
+      var svcData=services[svc];
+      urlHtml+='<div class="svc-card"><span class="status-dot live"></span><div><div class="svc-name">'+svc+'</div><div class="card-url" style="margin-top:0;">'+(svcData.url||'')+'</div></div></div>';
     });
-    urlHtml += '</div>';
+    urlHtml+='</div>';
   } else if(dep.accessUrl){
-    urlHtml = '<div class="card-url">'+dep.accessUrl+'</div>';
+    urlHtml='<div class="card-url">'+dep.accessUrl+'</div>';
   }
-
-  var html = '<div class="dep-card" onclick="cardClick(event,\''+dep.id+'\')">';
-  html += '<div class="card-header">';
-  html += '<div class="card-icon">&#128736;</div>';
-  html += '<div><div class="card-name">'+repoName(dep.repoUrl)+'</div><div class="card-repo">'+dep.id+' &middot; '+(dep.branch||'main')+'</div></div>';
-  html += '</div>';
-  html += '<div class="card-status">'+statusDot+'<span class="status-text '+dep.status+'">'+statusTxt+'</span></div>';
-  html += urlHtml;
-  html += '<div class="card-footer">';
-  html += '<span class="card-meta">'+(dep.projectType||'detecting')+' &middot; '+daysLeft(dep.expiresAt)+'</span>';
-  html += '<div class="card-actions">'+actHtml(dep)+'</div>';
-  html += '</div>';
-  html += '</div>';
+  var html='<div class="dep-card" onclick="cardClick(event,\''+dep.id+'\')">';
+  html+='<div class="card-header"><div class="card-icon">&#128736;</div>';
+  html+='<div><div class="card-name">'+repoName(dep.repoUrl)+'</div><div class="card-repo">'+dep.id+' &middot; '+(dep.branch||'main')+'</div></div></div>';
+  html+='<div class="card-status">'+statusDot+'<span class="status-text '+dep.status+'">'+statusTxt+'</span></div>';
+  html+=urlHtml;
+  html+='<div class="card-footer"><span class="card-meta">'+(dep.projectType||'detecting')+' &middot; '+daysLeft(dep.expiresAt)+'</span>';
+  html+='<div class="card-actions">'+actHtml(dep)+'</div></div></div>';
   return html;
 }
 
-function cardClick(e, id){
-  if(e.target.classList.contains('ib') || e.target.tagName==='BUTTON') return;
+function cardClick(e,id){
+  if(e.target.classList.contains('ib')||e.target.tagName==='BUTTON')return;
   viewLogs(id);
 }
 
@@ -745,16 +715,34 @@ function showDepModal(id){
   if(!dep)return;
   document.getElementById('modal-title').textContent='Deployment: '+id;
   document.getElementById('modal-sub').textContent=repoName(dep.repoUrl)+' — '+dep.branch;
-  document.getElementById('modal-env-input').value='';
   document.getElementById('modal-restart').value=dep.restartPolicy||'unless-stopped';
   document.getElementById('modal-health').value=dep.healthcheckPath||'';
   document.getElementById('modal-cron').value=dep.cronSchedule||'';
   document.getElementById('modal-webhook-secret').value=dep.webhookSecret||'';
   document.getElementById('modal-webhook-url').textContent=window.location.origin+'/webhook/'+id;
+
+  // Reset tabs
   document.querySelectorAll('.modal-tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.modal-tab-content').forEach(function(c){c.classList.remove('on');});
   document.querySelector('.modal-tab[data-tab="env"]').classList.add('on');
   document.getElementById('tab-env').classList.add('on');
+
+  // Show loading, hide textarea
+  document.getElementById('env-loading').style.display='block';
+  document.getElementById('modal-env-input').style.display='none';
+
+  // Load existing ENV from API
+  fetch('/deployments/'+id+'/env').then(function(r){return r.json();}).then(function(data){
+    var envVars=data.envVars||{};
+    var envText=Object.entries(envVars).map(function(e){return e[0]+'='+e[1];}).join('\n');
+    document.getElementById('modal-env-input').value=envText;
+    document.getElementById('env-loading').style.display='none';
+    document.getElementById('modal-env-input').style.display='block';
+  }).catch(function(){
+    document.getElementById('env-loading').textContent='Could not load ENV';
+    document.getElementById('modal-env-input').style.display='block';
+  });
+
   document.getElementById('dep-modal').classList.add('show');
 }
 
@@ -770,13 +758,11 @@ document.getElementById('modal-save').onclick=function(){
   var btn=this;btn.disabled=true;btn.textContent='Saving...';
   var promises=[];
   var envRaw=document.getElementById('modal-env-input').value.trim();
-  if(envRaw){
-    var envVars={};
-    envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});
-    promises.push(fetch('/deployments/'+modalDepId+'/env',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envVars:envVars})}).then(function(r){return r.json();}));
-  }
+  var envVars={};
+  if(envRaw){envRaw.split('\n').forEach(function(line){var idx=line.indexOf('=');if(idx>0){var k=line.substring(0,idx).trim();var v=line.substring(idx+1).trim();if(k)envVars[k]=v;}});}
+  promises.push(fetch('/deployments/'+modalDepId+'/env',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({envVars:envVars})}).then(function(r){return r.json();}));
   promises.push(fetch('/deployments/'+modalDepId+'/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({restartPolicy:document.getElementById('modal-restart').value,healthcheckPath:document.getElementById('modal-health').value,cronSchedule:document.getElementById('modal-cron').value,webhookSecret:document.getElementById('modal-webhook-secret').value})}).then(function(r){return r.json();}));
-  Promise.all(promises).then(function(){document.getElementById('dep-modal').classList.remove('show');showMsg('dash-msg','Settings saved!','ok');setTimeout(loadDeps,2000);}).catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');}).finally(function(){btn.disabled=false;btn.textContent='Save & Apply';modalDepId=null;});
+  Promise.all(promises).then(function(){document.getElementById('dep-modal').classList.remove('show');showMsg('dash-msg','Settings saved & applied!','ok');setTimeout(loadDeps,3000);}).catch(function(e){showMsg('dash-msg','Error: '+e.message,'err');}).finally(function(){btn.disabled=false;btn.textContent='Save & Apply';modalDepId=null;});
 };
 
 function loadDeps(){
@@ -798,27 +784,20 @@ function renderDash(){
   document.getElementById('s-building').textContent=building;
   document.getElementById('s-failed').textContent=failed;
   var filtered=filter==='all'?deps:deps.filter(function(d){return d.status===filter;});
-
-  // Cards view
   if(!filtered.length){
-    document.getElementById('dep-cards').innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">&#128640;</div><div>No deployments yet.</div><div style="margin-top:8px;"><button class="bp" onclick="goTo(\'new-deploy\')">+ New deployment</button></div></div>';
-  } else {
-    document.getElementById('dep-cards').innerHTML=filtered.map(renderCard).join('');
-  }
-
-  // List view
-  if(!filtered.length){
+    document.getElementById('dep-cards').innerHTML='<div class="empty" style="grid-column:1/-1;"><div style="font-size:32px;margin-bottom:8px;">&#128640;</div><div>No deployments yet.</div><div style="margin-top:8px;"><button class="bp" onclick="goTo(\'new-deploy\')">+ New deployment</button></div></div>';
     document.getElementById('dep-list').innerHTML='<div class="empty">No deployments yet.</div>';
-  } else {
-    var html='';
-    filtered.forEach(function(d){
-      html+='<div class="dr" style="grid-template-columns:1fr 200px 90px 65px 110px;">';
-      html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+'</div></div>';
-      html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
-      html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
-    });
-    document.getElementById('dep-list').innerHTML=html;
+    return;
   }
+  document.getElementById('dep-cards').innerHTML=filtered.map(renderCard).join('');
+  var html='';
+  filtered.forEach(function(d){
+    html+='<div class="dr" style="grid-template-columns:1fr 200px 90px 65px 110px;">';
+    html+='<div><div class="dn">'+d.id+' &mdash; '+repoName(d.repoUrl)+'</div><div class="dm">'+(d.branch||'main')+' &middot; '+(d.projectType||'detecting')+'</div></div>';
+    html+='<div>'+chipHtml(d)+'</div><div>'+badgeHtml(d.status)+'</div>';
+    html+='<div class="exp">'+daysLeft(d.expiresAt)+'</div><div class="acts">'+actHtml(d)+'</div></div>';
+  });
+  document.getElementById('dep-list').innerHTML=html;
 }
 
 function renderDeps2(){
