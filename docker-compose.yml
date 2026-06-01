@@ -1,23 +1,16 @@
 services:
-
   db:
     image: postgres:15-alpine
     container_name: flashdeploy-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: flashdeploy
-      POSTGRES_USER: flashuser
-      POSTGRES_PASSWORD: flashpass123
+      - POSTGRES_DB=flashdeploy
+      - POSTGRES_USER=flashuser
+      - POSTGRES_PASSWORD=flashpass123
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
       - flashnet
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U flashuser -d flashdeploy"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   backend:
     build: ./backend
     container_name: flashdeploy-backend
@@ -27,20 +20,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./backend/repos:/app/repos
-    environment:
-      NODE_ENV: production
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: flashdeploy
-      DB_USER: flashuser
-      DB_PASS: flashpass123
-      SERVER_IP: "54.204.232.10"
+    env_file:
+      - .env
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     networks:
       - flashnet
-
   frontend:
     build: ./frontend
     container_name: flashdeploy-frontend
@@ -51,10 +36,8 @@ services:
       - backend
     networks:
       - flashnet
-
 networks:
   flashnet:
     driver: bridge
-
 volumes:
   pgdata:
