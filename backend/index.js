@@ -444,6 +444,25 @@ app.post('/deployments/:id/settings', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+
+// Redeploy endpoint
+app.post('/deployments/:id/redeploy', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM deployments WHERE id=$1', [req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+    const dep = r.rows[0];
+    
+    await pool.query('UPDATE deployments SET status=$1, error_msg=$2 WHERE id=$3', ['building', null, dep.id]);
+    await addLog(dep.id, 'Redeploying...');
+    
+    res.json({ success: true, message: 'Redeploy started!' });
+    
+    (async () => {
+      await runDeploy(dep.id, dep.repo_url, dep.branch, dep.webhook_secret || '', dep.env_vars || {}, dep.dockerfile_path, dep.root_directory, dep.start_command, dep.healthcheck_path, dep.restart_policy, dep.compose_file, true);
+    })();
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.delete('/deployments/:id', async (req, res) => {
   try {
     const r = await pool.query('SELECT * FROM deployments WHERE id=$1', [req.params.id]);
