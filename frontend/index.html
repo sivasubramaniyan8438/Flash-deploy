@@ -671,6 +671,7 @@ function badgeHtml(s){var t=s==='live'?'Running':s==='building'?'Building':'Fail
 function actHtml(dep){
   var h='';
   if(dep.status==='live'&&dep.accessUrl){h+='<button class="ib" title="Open" onclick="openApp(\''+dep.accessUrl+'\')">&#8599;</button>';h+='<button class="ib" title="Copy URL" onclick="copyUrl(\''+dep.accessUrl+'\')">&#9064;</button>';}
+  h+='<button class="ib" title="Redeploy" onclick="reDeploy(\''+dep.id+'\')">&#8635;</button>';
   h+='<button class="ib" title="Settings & ENV" onclick="showDepModal(\''+dep.id+'\')">&#9881;</button>';
   h+='<button class="ib" title="Logs" onclick="viewLogs(\''+dep.id+'\')">&#8801;</button>';
   h+='<button class="ib del" title="Delete" onclick="delDep(\''+dep.id+'\')">&#10005;</button>';
