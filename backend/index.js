@@ -255,14 +255,11 @@ async function deployWithCompose(id, repoPath, composePath, envVars, restartPoli
 
   await addLog(id, 'Services found: ' + serviceNames.join(', '));
 
-  execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' build', {
-    cwd: repoPath, stdio: 'pipe', timeout: 600000
+  execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --build --force-recreate', {
+    cwd: repoPath, stdio: 'pipe', timeout: 600000,
+    env: Object.assign({}, process.env, { DOCKER_BUILDKIT: '0', COMPOSE_DOCKER_CLI_BUILD: '0' })
   });
   await addLog(id, 'Compose build successful');
-
-  execSync('docker-compose -p ' + projectName + ' -f ' + composePath + ' up -d --force-recreate', {
-    cwd: repoPath, stdio: 'pipe', timeout: 120000
-  });
   await addLog(id, 'Compose services started');
 
   // Wait a bit for containers to start
