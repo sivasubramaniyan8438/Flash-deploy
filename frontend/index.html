@@ -601,6 +601,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
   </div>
 </div>
 
+
+<!-- Logs Modal -->
+<div class="modal-overlay" id="logs-modal">
+  <div class="modal" style="width:700px;max-width:95vw;">
+    <div class="modal-title" id="logs-modal-title">Build Logs</div>
+    <div class="modal-sub" id="logs-modal-sub"></div>
+    <div class="logs-box" id="logs-modal-box" style="max-height:400px;margin-top:12px;"></div>
+    <div class="modal-actions">
+      <button class="bs" id="logs-modal-close">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var deps=[],filter='all',filter2='all',currentPage='dashboard',modalDepId=null,currentView='cards';
 var cfg={ip:localStorage.getItem('fd_ip')||'54.204.232.10',token:localStorage.getItem('fd_token')||'',expiry:localStorage.getItem('fd_expiry')||'30days',branch:localStorage.getItem('fd_branch')||'main'};
@@ -846,14 +859,27 @@ function populateLogSelect(){
 function openApp(url){window.open(url,'_blank');}
 function copyUrl(url){navigator.clipboard.writeText(url).then(function(){showMsg('dash-msg','URL copied!','ok');}).catch(function(){showMsg('dash-msg','URL: '+url,'inf');});}
 function viewLogs(id){
-  document.getElementById('logs-dep-id').textContent=id;
-  document.getElementById('logs-wrap').style.display='block';
-  document.getElementById('logs-box').innerHTML='<div style="color:#4a6a88;">Loading...</div>';
+  var dep=deps.find(function(d){return d.id===id;});
+  var name=dep?repoName(dep.repoUrl):id;
+  
+  // Show modal
+  document.getElementById('logs-modal-title').textContent='Build Logs — '+id;
+  document.getElementById('logs-modal-sub').textContent=name;
+  document.getElementById('logs-modal-box').innerHTML='<div style="color:#4a6a88;">Loading...</div>';
+  document.getElementById('logs-modal').classList.add('show');
+  
   fetch('/deployments/'+id+'/logs').then(function(r){return r.json();}).then(function(data){
     var logs=data.logs||[];
-    document.getElementById('logs-box').innerHTML=logs.length===0?'<div style="color:#4a6a88;">No logs yet...</div>':logs.map(function(l){return'<div style="padding:1px 0;border-bottom:1px solid #1a2d45;">'+l+'</div>';}).join('');
-    var box=document.getElementById('logs-box');box.scrollTop=box.scrollHeight;
+    document.getElementById('logs-modal-box').innerHTML=logs.length===0?'<div style="color:#4a6a88;">No logs yet...</div>':logs.map(function(l){return'<div style="padding:1px 0;border-bottom:1px solid #1a2d45;">'+l+'</div>';}).join('');
+    var box=document.getElementById('logs-modal-box');box.scrollTop=box.scrollHeight;
   });
+  
+  // Also update inline logs if on dashboard
+  if(currentPage==='dashboard'){
+    document.getElementById('logs-dep-id').textContent=id;
+    document.getElementById('logs-wrap').style.display='block';
+    document.getElementById('logs-box').innerHTML=document.getElementById('logs-modal-box').innerHTML;
+  }
 }
 function delDep(id){
   if(!confirm('Delete deployment '+id+'?'))return;
@@ -902,6 +928,8 @@ document.getElementById('btn-goto-new2').onclick=function(){goTo('new-deploy');}
 document.getElementById('btn-deploy').onclick=doDeploy;
 document.getElementById('btn-cancel-deploy').onclick=function(){goTo('dashboard');};
 document.getElementById('btn-close-logs').onclick=function(){document.getElementById('logs-wrap').style.display='none';};
+document.getElementById('logs-modal-close').onclick=function(){document.getElementById('logs-modal').classList.remove('show');};
+document.getElementById('logs-modal').onclick=function(e){if(e.target===this){this.classList.remove('show');}};
 document.getElementById('inp-url').onkeydown=function(e){if(e.key==='Enter')doDeploy();};
 
 document.querySelectorAll('[data-f]').forEach(function(btn){btn.onclick=function(){filter=this.getAttribute('data-f');document.querySelectorAll('[data-f]').forEach(function(b){b.classList.remove('on');});this.classList.add('on');renderDash();};});
