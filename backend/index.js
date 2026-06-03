@@ -68,6 +68,36 @@ async function initDB() {
     await pool.query(`ALTER TABLE deployments ADD COLUMN IF NOT EXISTS ${col}`).catch(()=>{});
   }
   console.log('[DB] Tables ready');
+  
+  // Update all access_urls with current SERVER_IP
+  try {
+    const serverIP = process.env.SERVER_IP;
+    if (serverIP) {
+      const r = await pool.query("SELECT id, access_url, services FROM deployments WHERE status='live'");
+      for (const dep of r.rows) {
+        if (dep.access_url && dep.access_url.includes('://')) {
+          const newUrl = dep.access_url.replace(/(\d{1,3}\.){3}\d{1,3}/, serverIP);
+          await pool.query('UPDATE deployments SET access_url=$1 WHERE id=$2', [newUrl, dep.id]);
+        }
+        if (dep.services && Object.keys(dep.services).length > 0) {
+          const services = dep.services;
+          let updated = false;
+          for (const svc of Object.keys(services)) {
+            if (services[svc].url) {
+              services[svc].url = services[svc].url.replace(/(\d{1,3}\.){3}\d{1,3}/, serverIP);
+              updated = true;
+            }
+          }
+          if (updated) {
+            await pool.query('UPDATE deployments SET services=$1 WHERE id=$2', [JSON.stringify(services), dep.id]);
+          }
+        }
+      }
+      console.log('[DB] URLs updated with IP: ' + serverIP);
+    }
+  } catch(e) {
+    console.error('[DB] URL update error:', e.message);
+  }
 }
 
 const EXPIRY_MS = {
